@@ -22,7 +22,7 @@ class Loan
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'loans')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $user = null;
+    private ?User $borrower = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 15, scale: 2)]
     #[Assert\NotBlank]
@@ -63,8 +63,8 @@ class Loan
 
     public function getId(): ?int { return $this->id; }
 
-    public function getUser(): ?User { return $this->user; }
-    public function setUser(?User $user): static { $this->user = $user; return $this; }
+    public function getUser(): ?User { return $this->borrower; }
+    public function setUser(?User $user): static { $this->borrower = $user; return $this; }
 
     public function getAmount(): ?string { return $this->amount; }
     public function setAmount(string $amount): static { $this->amount = $amount; return $this; }
