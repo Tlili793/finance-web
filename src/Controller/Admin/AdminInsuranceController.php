@@ -45,11 +45,16 @@ class AdminInsuranceController extends AbstractController
         try {
             $documentId = $boldSign->sendForSignature(
                 userName:         $req->getUser()->getName(),
+                userEmail:        $req->getUser()->getEmail(),
                 assetReference:   $req->getAsset()->getReference(),
+                assetType:        $req->getAsset()->getType(),
                 insurancePackage: $req->getPackage()->getName(),
+                coverageDetails:  $req->getPackage()->getCoverageDetails() ?? 'Standard coverage',
                 approvedValue:    (string) $req->getCalculatedPremium(),
                 contractDate:     new \DateTime(),
                 signerEmail:      $req->getUser()->getEmail(),
+                userId:           $req->getUser()->getId(),
+                requestId:        $req->getId(),
             );
 
             $req->setBoldsignDocumentId($documentId);
