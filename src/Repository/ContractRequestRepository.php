@@ -51,4 +51,12 @@ class ContractRequestRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
+
+    /**
+     * Find a single request by its BoldSign document ID (used by the webhook).
+     */
+    public function findOneByBoldsignDocumentId(string $documentId): ?ContractRequest
+    {
+        return $this->findOneBy(['boldsignDocumentId' => $documentId]);
+    }
 }

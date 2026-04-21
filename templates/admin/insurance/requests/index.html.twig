@@ -28,6 +28,7 @@
                     <th>Package</th>
                     <th>Premium</th>
                     <th>Status</th>
+                    <th>BoldSign Doc</th>
                     <th>Submitted</th>
                     <th>Actions</th>
                 </tr>
@@ -35,10 +36,11 @@
             <tbody>
             {% for req in requests %}
                 {% set statusClass = {
-                    'PENDING':   'warning',
-                    'APPROVED':  'success',
-                    'REJECTED':  'danger',
-                    'CANCELLED': 'secondary'
+                    'PENDING':            'warning',
+                    'WAITING_FOR_SIGNING':'info',
+                    'APPROVED':           'success',
+                    'REJECTED':           'danger',
+                    'CANCELLED':          'secondary'
                 }[req.status] ?? 'secondary' %}
                 <tr>
                     <td>{{ req.id }}</td>
@@ -49,15 +51,22 @@
                     <td>{{ req.asset.reference }} <small class="text-muted">({{ req.asset.type }})</small></td>
                     <td>{{ req.package.name }}</td>
                     <td>{{ req.calculatedPremium }} TND</td>
-                    <td><span class="badge text-bg-{{ statusClass }}">{{ req.status }}</span></td>
+                    <td><span class="badge text-bg-{{ statusClass }}">{{ req.status|replace({'_': ' '}) }}</span></td>
+                    <td>
+                        {% if req.boldsignDocumentId %}
+                            <span class="badge text-bg-light text-dark font-monospace" style="font-size:.7rem" title="BoldSign Document ID">{{ req.boldsignDocumentId|slice(0,12) }}…</span>
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
                     <td>{{ req.createdAt ? req.createdAt|date('Y-m-d') : '—' }}</td>
                     <td class="text-nowrap">
                         {# ── Approve / Reject: PENDING only ── #}
                         {% if req.status == 'PENDING' %}
                         <form method="post" action="{{ path('admin_insurance_request_approve', {id: req.id}) }}" class="d-inline">
                             <input type="hidden" name="_token" value="{{ csrf_token('approve-' ~ req.id) }}">
-                            <button class="btn btn-sm btn-success me-1" title="Approve">
-                                <i class="bi bi-check-circle"></i>
+                            <button class="btn btn-sm btn-success me-1" title="Approve &amp; Send for Signing">
+                                <i class="bi bi-check-circle"></i> Sign
                             </button>
                         </form>
                         <form method="post" action="{{ path('admin_insurance_request_reject', {id: req.id}) }}" class="d-inline"
@@ -85,7 +94,7 @@
                     </td>
                 </tr>
             {% else %}
-                <tr><td colspan="8" class="text-center text-muted py-4">No requests found.</td></tr>
+                <tr><td colspan="9" class="text-center text-muted py-4">No requests found.</td></tr>
             {% endfor %}
             </tbody>
         </table>

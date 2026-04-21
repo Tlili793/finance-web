@@ -2,6 +2,8 @@
 namespace App\Service;
 
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Component\Mime\Part\DataPart;
+use Symfony\Component\Mime\Part\Multipart\FormDataPart;
 
 class BoldSignService
 {
@@ -68,16 +70,30 @@ class BoldSignService
         string $assetReference,
         string $signerEmail,
     ): string {
+        $formFields = [
+            'Title' => 'Insurance Contract - ' . $assetReference,
+            'Signers[0].Name' => $userName,
+            'Signers[0].EmailAddress' => $signerEmail,
+            'Signers[0].SignerOrder' => '1',
+            'Signers[0].FormFields[0].FieldType' => 'Signature',
+            'Signers[0].FormFields[0].PageNumber' => '1',
+            'Signers[0].FormFields[0].Bounds.X' => '100',
+            'Signers[0].FormFields[0].Bounds.Y' => '600',
+            'Signers[0].FormFields[0].Bounds.Width' => '200',
+            'Signers[0].FormFields[0].Bounds.Height' => '50',
+            'Signers[0].FormFields[0].IsRequired' => 'true',
+            'WebhookUrl' => $this->webhookUrl,
+            'Files' => DataPart::fromPath($pdfPath, 'contract.pdf', 'application/pdf')
+        ];
+
+        $formData = new FormDataPart($formFields);
+
         $response = $this->httpClient->request('POST', $this->baseUrl . '/v1/document/send', [
-            'headers' => [
-                'X-API-KEY' => $this->apiKey,
-            ],
-            'body' => $this->buildMultipartBody(
-                $pdfPath,
-                $userName,
-                $assetReference,
-                $signerEmail,
+            'headers' => array_merge(
+                ['X-API-KEY' => $this->apiKey],
+                $formData->getPreparedHeaders()->toArray()
             ),
+            'body' => $formData->bodyToIterable(),
         ]);
 
         $statusCode = $response->getStatusCode();
@@ -91,50 +107,5 @@ class BoldSignService
 
         $data = json_decode($body, true);
         return $data['documentId'] ?? $body;
-    }
-
-    /**
-     * Builds the multipart/form-data body manually so we control every field,
-     * mirroring the Java implementation exactly.
-     */
-    private function buildMultipartBody(
-        string $pdfPath,
-        string $userName,
-        string $assetReference,
-        string $signerEmail,
-    ): array {
-        // Symfony HttpClient accepts 'body' as an array of multipart fields
-        // when 'Content-Type' is NOT explicitly set — it builds the boundary automatically.
-        // We use the array form here for clarity and safety.
-
-        return [
-            // ── PDF file ─────────────────────────────────────────────
-            [
-                'name'     => 'Files',
-                'contents' => fopen($pdfPath, 'r'),
-                'filename' => 'contract.pdf',
-                'headers'  => ['Content-Type' => 'application/pdf'],
-            ],
-
-            // ── Document metadata ─────────────────────────────────────
-            ['name' => 'Title',   'contents' => 'Insurance Contract - ' . $assetReference],
-
-            // ── Signer ────────────────────────────────────────────────
-            ['name' => 'Signers[0].Name',         'contents' => $userName],
-            ['name' => 'Signers[0].EmailAddress',  'contents' => $signerEmail],
-            ['name' => 'Signers[0].SignerOrder',   'contents' => '1'],
-
-            // ── Signature form field ──────────────────────────────────
-            ['name' => 'Signers[0].FormFields[0].FieldType',      'contents' => 'Signature'],
-            ['name' => 'Signers[0].FormFields[0].PageNumber',      'contents' => '1'],
-            ['name' => 'Signers[0].FormFields[0].Bounds.X',        'contents' => '100'],
-            ['name' => 'Signers[0].FormFields[0].Bounds.Y',        'contents' => '600'],
-            ['name' => 'Signers[0].FormFields[0].Bounds.Width',    'contents' => '200'],
-            ['name' => 'Signers[0].FormFields[0].Bounds.Height',   'contents' => '50'],
-            ['name' => 'Signers[0].FormFields[0].IsRequired',      'contents' => 'true'],
-
-            // ── Webhook ───────────────────────────────────────────────
-            ['name' => 'WebhookUrl', 'contents' => $this->webhookUrl],
-        ];
     }
 }

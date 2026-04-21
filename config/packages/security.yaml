@@ -34,7 +34,10 @@ security:
         - { path: ^/reset-password,  roles: PUBLIC_ACCESS }
         - { path: ^/verify-email,    roles: PUBLIC_ACCESS }
         # Google OAuth (must be public)
-        - { path: ^/auth/google,     roles: PUBLIC_ACCESS }
+        - { path: ^/auth/google,              roles: PUBLIC_ACCESS }
+        # BoldSign webhook (called by BoldSign servers — no session)
+        - { path: ^/insurance/boldsign/webhook, roles: PUBLIC_ACCESS }
+        - { path: ^/webhook/boldsign,           roles: PUBLIC_ACCESS }
         # Admin area
         - { path: ^/admin,           roles: ROLE_ADMIN }
         # Everything else requires login

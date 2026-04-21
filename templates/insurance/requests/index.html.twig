@@ -27,8 +27,8 @@
                 <label class="form-label small text-muted mb-1">Status</label>
                 <select name="status" class="form-select">
                     <option value="">All statuses</option>
-                    {% for s in ['PENDING', 'APPROVED', 'REJECTED', 'CANCELLED'] %}
-                        <option value="{{ s }}" {{ status == s ? 'selected' : '' }}>{{ s|capitalize }}</option>
+                    {% for s in ['PENDING', 'WAITING_FOR_SIGNING', 'APPROVED', 'REJECTED', 'CANCELLED'] %}
+                        <option value="{{ s }}" {{ status == s ? 'selected' : '' }}>{{ s|replace({'_': ' '})|title }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -94,17 +94,18 @@
             <tbody>
             {% for req in requests %}
                 {% set statusClass = {
-                    'PENDING':   'warning',
-                    'APPROVED':  'success',
-                    'REJECTED':  'danger',
-                    'CANCELLED': 'secondary'
+                    'PENDING':            'warning',
+                    'WAITING_FOR_SIGNING':'info',
+                    'APPROVED':           'success',
+                    'REJECTED':           'danger',
+                    'CANCELLED':          'secondary'
                 }[req.status] ?? 'secondary' %}
                 <tr>
                     <td>{{ req.id }}</td>
                     <td>{{ req.asset.reference }} <small class="text-muted">({{ req.asset.type }})</small></td>
                     <td>{{ req.package.name }}</td>
                     <td>{{ req.calculatedPremium }} TND</td>
-                    <td><span class="badge text-bg-{{ statusClass }}">{{ req.status }}</span></td>
+                    <td><span class="badge text-bg-{{ statusClass }}">{{ req.status|replace({'_': ' '}) }}</span></td>
                     <td>{{ req.createdAt ? req.createdAt|date('Y-m-d') : '—' }}</td>
                     <td class="text-nowrap">
                         {# ── Edit ── #}
@@ -122,6 +123,11 @@
                                 <i class="bi bi-x-circle"></i>
                             </button>
                         </form>
+                        {% endif %}
+
+                        {# ── Signing notice ── #}
+                        {% if req.status == 'WAITING_FOR_SIGNING' %}
+                            <span class="badge text-bg-info"><i class="bi bi-envelope-check me-1"></i>Check your email</span>
                         {% endif %}
 
                         {# ── Delete ── #}

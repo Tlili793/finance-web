@@ -20,6 +20,22 @@ services:
             $hcaptchaSecretKey: '%hcaptcha_secret_key%'
 
 
+    App\Controller\PaymentController:
+        arguments:
+            $paymeeApiKey: '%env(PAYMEE_API_KEY)%'
+            $paymeeUrl: '%env(PAYMEE_PAYMENT_URL)%'
+            $mailerSender: 'yasmine912003@gmail.com'
+
     App\Controller\InsuranceAssistantController:
         arguments:
             $fastapiUrl: '%env(FASTAPI_URL)%'
+
+    App\Service\BoldSignService:
+        arguments:
+            $apiKey: '%env(BOLDSIGN_API_KEY)%'
+            $baseUrl: '%env(BOLDSIGN_BASE_URL)%'
+            $webhookUrl: '%env(BOLDSIGN_WEBHOOK_URL)%'
+
+    App\Controller\BoldSignWebhookController:
+        arguments:
+            $webhookSecret: '%env(BOLDSIGN_WEBHOOK_SECRET)%'
