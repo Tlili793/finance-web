@@ -3,6 +3,7 @@ namespace App\Controller;
 
 use App\Repository\ContractRequestRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Service\InsuranceMailerService;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,14 +29,15 @@ use Symfony\Component\Routing\Annotation\Route;
 class BoldSignWebhookController extends AbstractController
 {
     public function __construct(
-        private readonly string $webhookSecret,
+        private ContractRequestRepository $repo,
+        private EntityManagerInterface    $em,
+        private InsuranceMailerService    $mailer,
+        private string                    $webhookSecret
     ) {}
 
     public function __invoke(
-        Request                   $request,
-        ContractRequestRepository $repo,
-        EntityManagerInterface    $em,
-        LoggerInterface           $logger,
+        Request         $request,
+        LoggerInterface $logger,
     ): Response {
         // ── 1. Verify HMAC signature ──────────────────────────────────────────
         $rawBody   = $request->getContent();
@@ -81,17 +83,21 @@ class BoldSignWebhookController extends AbstractController
         // ── 4. Handle each event type ─────────────────────────────────────────
         match ($event) {
             // All signers have completed — contract is fully signed
-            'Completed', 'DocumentCompleted', 'document_completed' => (function () use ($req, $em, $logger, $documentId) {
-                $req->setStatus('APPROVED');
-                $em->flush();
-                $logger->info('BoldSign: contract fully signed → APPROVED', [
+            'Completed', 'DocumentCompleted', 'document_completed' => (function () use ($req, $logger, $documentId) {
+                $req->setStatus('SIGNED');
+                $this->em->flush();
+                
+                // Send system notification email
+                $this->mailer->sendContractSignedNotification($req);
+
+                $logger->info('BoldSign: contract fully signed → SIGNED', [
                     'requestId'  => $req->getId(),
                     'documentId' => $documentId,
                 ]);
             })(),
 
             // A signer declined to sign
-            'Declined', 'DocumentDeclined', 'document_declined' => (function () use ($req, $em, $logger, $documentId) {
+            'Declined', 'DocumentDeclined', 'document_declined' => (function () use ($req, $logger, $documentId) {
                 $req->setStatus('REJECTED');
                 $em->flush();
                 $logger->warning('BoldSign: signer declined → REJECTED', [
@@ -101,10 +107,15 @@ class BoldSignWebhookController extends AbstractController
             })(),
 
             // DocumentSigned fires per-signer (intermediate event) — just log it
-            'Signed', 'DocumentSigned', 'document_signed' => $logger->info('BoldSign: signer signed (intermediate)', [
-                'requestId'  => $req->getId(),
-                'documentId' => $documentId,
-            ]),
+            'Signed', 'DocumentSigned', 'document_signed' => (function () use ($req, $em, $logger, $documentId) {
+                 // Optionally set to 'SIGNED' here too if it's a single-signer document
+                 $req->setStatus('SIGNED');
+                 $em->flush();
+                 $logger->info('BoldSign: signer signed → SIGNED', [
+                     'requestId'  => $req->getId(),
+                     'documentId' => $documentId,
+                 ]);
+            })(),
 
             // Any other event (Sent, Viewed, etc.) — log and ignore
             default => $logger->info('BoldSign webhook: unhandled event', ['event' => $event]),

@@ -6,8 +6,8 @@ from dotenv import load_dotenv
 from models import PromptRequest, PromptResponse, Message, InsuranceChatRequest, InsuranceChatResponse
 from services.insurance import get_insurance_reply, reset_user_memory, get_user_history
 
-# Load .env from the same directory as this file, regardless of where uvicorn is launched
-load_dotenv(dotenv_path=Path(__file__).resolve().parent / ".env")
+# Load .env from the root directory
+load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent / ".env", override=True)
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 GROQ_API_URL = os.getenv(
@@ -116,7 +116,12 @@ async def chat_with_groq(request: PromptRequest):
 @app.post("/insurance/chat", response_model=InsuranceChatResponse)
 async def insurance_chat(request: InsuranceChatRequest):
     """Stateful insurance assistant — delegates memory and LLM logic to the service layer."""
-    reply, history_length = await get_insurance_reply(request.user_id, request.message, request.context)
+    reply, history_length = await get_insurance_reply(
+        request.user_id,
+        request.message,
+        request.context,
+        request.history
+    )
     return InsuranceChatResponse(
         reply=reply,
         user_id=request.user_id,

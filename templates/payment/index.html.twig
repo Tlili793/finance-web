@@ -6,7 +6,7 @@
 {% block body %}
 <div class="d-flex justify-content-between align-items-center mb-3">
     <p class="text-muted mb-0">Manage all your payment records.</p>
-    <a href="{{ path('payment_new') }}" class="btn btn-primary">
+    <a href="{{ path('payment_create') }}" class="btn btn-primary">
         <i class="bi bi-plus-circle me-1"></i> New Payment
     </a>
 </div>
@@ -43,7 +43,7 @@
             <div class="text-center py-5 text-muted">
                 <i class="bi bi-credit-card-2-front" style="font-size:3rem;"></i>
                 <p class="mt-2">No payments yet.</p>
-                <a href="{{ path('payment_new') }}" class="btn btn-outline-primary btn-sm">Add a Payment</a>
+                <a href="{{ path('payment_create') }}" class="btn btn-outline-primary btn-sm">Add a Payment</a>
             </div>
         {% else %}
             <table class="table table-hover mb-0" id="payments-table">

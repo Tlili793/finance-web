@@ -1,0 +1,19 @@
+{% extends 'email/insurance/base.html.twig' %}
+
+{% block content %}
+    <p>Hello <strong>{{ request.user.name }}</strong>,</p>
+    
+    <p>Good news! Your insurance request for <strong>{{ request.asset.reference }}</strong> has been reviewed and approved by our administration team.</p>
+    
+    <div class="card">
+        <strong>Policy Details:</strong><br>
+        Package: {{ request.package.name }}<br>
+        Annual Premium: {{ request.calculatedPremium }} TND
+    </div>
+
+    <p>The final step to activate your coverage is to sign the digital contract. You should have received a separate email from <strong>BoldSign</strong> with a secure link to sign.</p>
+
+    <p>Please check your inbox (and spam folder) for the BoldSign signature request.</p>
+
+    <p>Thank you for choosing us!</p>
+{% endblock %}

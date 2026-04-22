@@ -5,19 +5,24 @@ use App\Entity\InsurancePackage;
 use App\Repository\ContractRequestRepository;
 use App\Repository\InsurancePackageRepository;
 use App\Repository\InsuredAssetRepository;
-use App\Service\BoldSignService;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Service\BoldSignService;
+use App\Service\InsuranceMailerService;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/admin/insurance', name: 'admin_insurance_')]
 #[IsGranted('ROLE_ADMIN')]
 class AdminInsuranceController extends AbstractController
 {
+    public function __construct(
+        private readonly BoldSignService        $boldSign,
+        private readonly InsuranceMailerService $mailer
+    ) {}
+
     // ─── CONTRACT REQUESTS ────────────────────────────────────────────────────
 
     #[Route('/requests', name: 'requests', methods: ['GET'])]
@@ -29,59 +34,57 @@ class AdminInsuranceController extends AbstractController
     }
 
     #[Route('/requests/{id}/approve', name: 'request_approve', methods: ['POST'])]
-    public function approveRequest(
-        int $id,
-        ContractRequestRepository $repo,
-        EntityManagerInterface $em,
-        BoldSignService $boldSign,
-        LoggerInterface $logger
-    ): Response {
-        $req = $repo->find($id);
-        if (!$req) {
-            throw $this->createNotFoundException();
+    public function approveRequest(ContractRequest $req, EntityManagerInterface $em): Response
+    {
+        if ($req->getStatus() !== 'PENDING') {
+            $this->addFlash('warning', 'Request is not in PENDING status.');
+            return $this->redirectToRoute('admin_insurance_requests');
         }
 
-        // Send the contract for e-signature via BoldSign
         try {
-            $documentId = $boldSign->sendForSignature(
-                userName:         $req->getUser()->getName(),
-                userEmail:        $req->getUser()->getEmail(),
-                assetReference:   $req->getAsset()->getReference(),
-                assetType:        $req->getAsset()->getType(),
-                insurancePackage: $req->getPackage()->getName(),
-                coverageDetails:  $req->getPackage()->getCoverageDetails() ?? 'Standard coverage',
-                approvedValue:    (string) $req->getCalculatedPremium(),
-                contractDate:     new \DateTime(),
-                signerEmail:      $req->getUser()->getEmail(),
-                userId:           $req->getUser()->getId(),
-                requestId:        $req->getId(),
+            // 1. Send signature request via BoldSign
+            $documentId = $this->boldSign->sendForSignature(
+                $req->getUser()->getId(),
+                $req->getId(),
+                $req->getUser()->getName() ?? 'User',
+                $req->getAsset()->getReference(),
+                $req->getPackage()->getName(),
+                $req->getCalculatedPremium() ?? '0.00',
+                new \DateTime(),
+                $req->getUser()->getEmail()
             );
 
-            $req->setBoldsignDocumentId($documentId);
+            // 2. Update status and store document ID
             $req->setStatus('WAITING_FOR_SIGNING');
+            $req->setBoldsignDocumentId($documentId);
             $em->flush();
 
-            $this->addFlash('success', "Request #{$id} approved — signature request sent to {$req->getUser()->getEmail()}.");
-        } catch (\Throwable $e) {
-            $logger->error('BoldSign error on request #{id}: {msg}', ['id' => $id, 'msg' => $e->getMessage()]);
-            $this->addFlash('danger', "Could not send signature request: {$e->getMessage()}");
+            // 3. Send system notification email
+            $this->mailer->sendSignatureRequestNotification($req);
+
+            $this->addFlash('success', "Request #{$req->getId()} approved. Sent to BoldSign for signing.");
+        } catch (\Exception $e) {
+            $this->addFlash('danger', "Could not send signature request: " . $e->getMessage());
         }
 
         return $this->redirectToRoute('admin_insurance_requests');
     }
 
     #[Route('/requests/{id}/reject', name: 'request_reject', methods: ['POST'])]
-    public function rejectRequest(int $id, ContractRequestRepository $repo, EntityManagerInterface $em): Response
+    public function rejectRequest(ContractRequest $req, EntityManagerInterface $em): Response
     {
-        $req = $repo->find($id);
-        if (!$req) {
-            throw $this->createNotFoundException();
+        if ($req->getStatus() !== 'PENDING') {
+            $this->addFlash('warning', 'Request is not in PENDING status.');
+            return $this->redirectToRoute('admin_insurance_requests');
         }
 
         $req->setStatus('REJECTED');
         $em->flush();
 
-        $this->addFlash('danger', "Request #{$id} rejected.");
+        // Send rejection notification email
+        $this->mailer->sendRejectionNotification($req);
+
+        $this->addFlash('danger', "Request #{$req->getId()} rejected.");
         return $this->redirectToRoute('admin_insurance_requests');
     }
 

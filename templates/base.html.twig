@@ -10,6 +10,10 @@
 
     {# Bootstrap Icons (via CDN since no npm) #}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    {# DataTables Bootstrap 5 CSS #}
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     <style>
         /* Profile link in navbar */
@@ -121,6 +125,12 @@
                                 <p>Insurance <i class="nav-arrow bi bi-chevron-right ms-auto"></i></p>
                             </a>
                             <ul class="nav nav-treeview ps-3">
+                                <li class="nav-item">
+                                    <a href="{{ path('insurance_dashboard') }}" class="nav-link">
+                                        <i class="nav-icon bi bi-grid-fill text-primary"></i>
+                                        <p>Insurance Dashboard</p>
+                                    </a>
+                                </li>
                                 <li class="nav-item">
                                     <a href="{{ path('insurance_assets') }}" class="nav-link">
                                         <i class="nav-icon bi bi-hdd-rack"></i>
@@ -408,6 +418,15 @@
     </footer>
 
 </div>
+
+{# jQuery (needed for DataTables) #}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+{# DataTables JS #}
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
 
 {# AdminLTE JS (includes Bootstrap 5) #}
 <script src="{{ asset('adminlte/js/adminlte.min.js') }}"></script>

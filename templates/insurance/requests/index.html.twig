@@ -12,83 +12,55 @@
     {% endfor %}
 {% endfor %}
 
-{# ── Search / Filter / Sort ── #}
-<div class="card mb-3 border-0 shadow-sm">
-    <div class="card-body py-2">
-        <form method="get" action="{{ path('insurance_requests') }}" class="row g-2 align-items-end">
-            <div class="col-md-4">
-                <label class="form-label small text-muted mb-1">Search</label>
+{# ── Search / Filter / Sort (Server Side) ── #}
+<div class="card mb-4 border-0 shadow-sm">
+    <div class="card-body py-3">
+        <form method="get" action="{{ path('insurance_requests') }}" class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label small fw-bold text-uppercase text-muted mb-1">Search Database</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="bi bi-search"></i></span>
-                    <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Asset reference, package name…">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                    <input type="text" name="q" value="{{ q }}" class="form-control border-start-0" placeholder="Asset reference, package name…">
                 </div>
             </div>
-            <div class="col-md-2">
-                <label class="form-label small text-muted mb-1">Status</label>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-muted mb-1">Status</label>
                 <select name="status" class="form-select">
                     <option value="">All statuses</option>
-                    {% for s in ['PENDING', 'WAITING_FOR_SIGNING', 'APPROVED', 'REJECTED', 'CANCELLED'] %}
+                    {% for s in ['PENDING', 'WAITING_FOR_SIGNING', 'SIGNED', 'APPROVED', 'REJECTED', 'CANCELLED'] %}
                         <option value="{{ s }}" {{ status == s ? 'selected' : '' }}>{{ s|replace({'_': ' '})|title }}</option>
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-md-3">
-                <label class="form-label small text-muted mb-1">Sort by</label>
-                <select name="order" class="form-select">
-                    <option value="r.createdAt"         {{ orderBy == 'r.createdAt'         ? 'selected' : '' }}>Submitted Date</option>
-                    <option value="r.calculatedPremium" {{ orderBy == 'r.calculatedPremium' ? 'selected' : '' }}>Premium</option>
-                    <option value="r.status"            {{ orderBy == 'r.status'            ? 'selected' : '' }}>Status</option>
-                </select>
-            </div>
-            <div class="col-md-1">
-                <label class="form-label small text-muted mb-1">Dir</label>
-                <select name="dir" class="form-select">
-                    <option value="DESC" {{ dir == 'DESC' ? 'selected' : '' }}>↓ Desc</option>
-                    <option value="ASC"  {{ dir == 'ASC'  ? 'selected' : '' }}>↑ Asc</option>
-                </select>
-            </div>
-            <div class="col-md-2 d-flex gap-2">
-                <button class="btn btn-primary w-100"><i class="bi bi-funnel me-1"></i>Filter</button>
-                <a href="{{ path('insurance_requests') }}" class="btn btn-outline-secondary" title="Reset"><i class="bi bi-x-lg"></i></a>
+            <div class="col-md-4 d-flex gap-2">
+                <button class="btn btn-primary px-4"><i class="bi bi-filter-right me-1"></i>Apply Filters</button>
+                <a href="{{ path('insurance_requests') }}" class="btn btn-outline-secondary px-3" title="Clear All"><i class="bi bi-arrow-counterclockwise"></i></a>
             </div>
         </form>
     </div>
 </div>
 
-<div class="row mb-3">
+<div class="row mb-3 align-items-center">
     <div class="col-12 d-flex justify-content-between align-items-center">
-        <p class="text-muted mb-0">{{ requests|length }} request(s) found</p>
-        <a href="{{ path('insurance_request_new') }}" class="btn btn-primary">
-            <i class="bi bi-plus-circle me-1"></i> New Contract Request
+        <h5 class="mb-0 text-dark fw-bold">Recent Requests</h5>
+        <a href="{{ path('insurance_request_new') }}" class="btn btn-primary rounded-pill px-4">
+            <i class="bi bi-plus-lg me-1"></i> New Request
         </a>
     </div>
 </div>
 
-<div class="card">
-    <div class="card-header"><h3 class="card-title"><i class="bi bi-file-earmark-text me-2"></i>Requests</h3></div>
+<div class="card border-0 shadow-sm">
     <div class="card-body p-0">
-        <table class="table table-striped table-hover mb-0">
-            <thead>
+        <table id="userRequestsTable" class="table table-hover align-middle mb-0" style="width:100%">
+            <thead class="table-light">
                 <tr>
                     <th>#</th>
-                    <th>Asset</th>
+                    <th>Asset Details</th>
                     <th>Package</th>
-                    <th>
-                        <a href="{{ path('insurance_requests', {q: q, status: status, order: 'r.calculatedPremium', dir: (orderBy == 'r.calculatedPremium' and dir == 'ASC') ? 'DESC' : 'ASC'}) }}" class="text-decoration-none text-dark">
-                            Premium {% if orderBy == 'r.calculatedPremium' %}<i class="bi bi-arrow-{{ dir == 'ASC' ? 'up' : 'down' }}"></i>{% endif %}
-                        </a>
-                    </th>
-                    <th>
-                        <a href="{{ path('insurance_requests', {q: q, status: status, order: 'r.status', dir: (orderBy == 'r.status' and dir == 'ASC') ? 'DESC' : 'ASC'}) }}" class="text-decoration-none text-dark">
-                            Status {% if orderBy == 'r.status' %}<i class="bi bi-arrow-{{ dir == 'ASC' ? 'up' : 'down' }}"></i>{% endif %}
-                        </a>
-                    </th>
-                    <th>
-                        <a href="{{ path('insurance_requests', {q: q, status: status, order: 'r.createdAt', dir: (orderBy == 'r.createdAt' and dir == 'ASC') ? 'DESC' : 'ASC'}) }}" class="text-decoration-none text-dark">
-                            Submitted {% if orderBy == 'r.createdAt' %}<i class="bi bi-arrow-{{ dir == 'ASC' ? 'up' : 'down' }}"></i>{% endif %}
-                        </a>
-                    </th>
-                    <th>Actions</th>
+                    <th>Premium</th>
+                    <th>Status</th>
+                    <th>Submitted</th>
+                    <th class="text-center no-sort">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -96,55 +68,87 @@
                 {% set statusClass = {
                     'PENDING':            'warning',
                     'WAITING_FOR_SIGNING':'info',
+                    'SIGNED':             'primary',
                     'APPROVED':           'success',
                     'REJECTED':           'danger',
                     'CANCELLED':          'secondary'
                 }[req.status] ?? 'secondary' %}
                 <tr>
-                    <td>{{ req.id }}</td>
-                    <td>{{ req.asset.reference }} <small class="text-muted">({{ req.asset.type }})</small></td>
+                    <td><span class="text-muted fw-bold">#{{ req.id }}</span></td>
+                    <td>
+                        <div class="fw-bold">{{ req.asset.reference }}</div>
+                        <div class="small text-muted">{{ req.asset.type }}</div>
+                    </td>
                     <td>{{ req.package.name }}</td>
-                    <td>{{ req.calculatedPremium }} TND</td>
-                    <td><span class="badge text-bg-{{ statusClass }}">{{ req.status|replace({'_': ' '}) }}</span></td>
-                    <td>{{ req.createdAt ? req.createdAt|date('Y-m-d') : '—' }}</td>
-                    <td class="text-nowrap">
-                        {# ── Edit ── #}
-                        <a href="{{ path('insurance_request_edit', {id: req.id}) }}"
-                           class="btn btn-sm btn-outline-warning me-1" title="Edit">
-                            <i class="bi bi-pencil"></i>
-                        </a>
+                    <td data-sort="{{ req.calculatedPremium }}">
+                        <span class="fw-bold">{{ req.calculatedPremium }}</span> <small class="text-muted">TND</small>
+                    </td>
+                    <td><span class="badge rounded-pill text-bg-{{ statusClass }}">{{ req.status|replace({'_': ' '}) }}</span></td>
+                    <td data-sort="{{ req.createdAt ? req.createdAt|date('U') : 0 }}">
+                        {{ req.createdAt ? req.createdAt|date('Y-m-d') : '—' }}
+                    </td>
+                    <td>
+                        <div class="d-flex justify-content-center gap-1">
+                            {# ── Edit ── #}
+                            <a href="{{ path('insurance_request_edit', {id: req.id}) }}"
+                               class="btn btn-sm btn-light border" title="Edit">
+                                <i class="bi bi-pencil text-warning"></i>
+                            </a>
 
-                        {# ── Cancel: only for PENDING ── #}
-                        {% if req.status == 'PENDING' %}
-                        <form method="post" action="{{ path('insurance_request_cancel', {id: req.id}) }}" class="d-inline"
-                              onsubmit="return confirm('Cancel this request?')">
-                            <input type="hidden" name="_token" value="{{ csrf_token('cancel-req-' ~ req.id) }}">
-                            <button class="btn btn-sm btn-outline-secondary me-1" title="Cancel">
-                                <i class="bi bi-x-circle"></i>
-                            </button>
-                        </form>
-                        {% endif %}
+                            {# ── Cancel: only for PENDING ── #}
+                            {% if req.status == 'PENDING' %}
+                            <form method="post" action="{{ path('insurance_request_cancel', {id: req.id}) }}" class="d-inline"
+                                  onsubmit="return confirm('Cancel this request?')">
+                                <input type="hidden" name="_token" value="{{ csrf_token('cancel-req-' ~ req.id) }}">
+                                <button class="btn btn-sm btn-light border" title="Cancel">
+                                    <i class="bi bi-x-circle text-muted"></i>
+                                </button>
+                            </form>
+                            {% endif %}
 
-                        {# ── Signing notice ── #}
-                        {% if req.status == 'WAITING_FOR_SIGNING' %}
-                            <span class="badge text-bg-info"><i class="bi bi-envelope-check me-1"></i>Check your email</span>
-                        {% endif %}
+                            {# ── Signing notice ── #}
+                            {% if req.status == 'WAITING_FOR_SIGNING' %}
+                                <a href="#" class="btn btn-sm btn-info text-white" title="Check your email to sign">
+                                    <i class="bi bi-pen-fill"></i>
+                                </a>
+                            {% endif %}
 
-                        {# ── Delete ── #}
-                        <form method="post" action="{{ path('insurance_request_delete', {id: req.id}) }}" class="d-inline"
-                              onsubmit="return confirm('Delete request #{{ req.id }}?')">
-                            <input type="hidden" name="_token" value="{{ csrf_token('delete-req-' ~ req.id) }}">
-                            <button class="btn btn-sm btn-outline-danger" title="Delete">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </form>
+                            {# ── Delete ── #}
+                            <form method="post" action="{{ path('insurance_request_delete', {id: req.id}) }}" class="d-inline"
+                                  onsubmit="return confirm('Delete request #{{ req.id }}?')">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete-req-' ~ req.id) }}">
+                                <button class="btn btn-sm btn-light border" title="Delete">
+                                    <i class="bi bi-trash text-danger"></i>
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
             {% else %}
-                <tr><td colspan="7" class="text-center text-muted py-4">No requests found for the current filters.</td></tr>
+                <tr><td colspan="7" class="text-center text-muted py-5">No requests found.</td></tr>
             {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+$(document).ready(function() {
+    $('#userRequestsTable').DataTable({
+        "order": [[ 0, "desc" ]],
+        "responsive": true,
+        "pageLength": 10,
+        "dom": '<"d-flex justify-content-end mb-2"f>rt<"d-flex justify-content-between align-items-center mt-3"ip>',
+        "columnDefs": [
+            { "targets": 'no-sort', "orderable": false }
+        ],
+        "language": {
+            "searchPlaceholder": "Filter table results...",
+            "search": ""
+        }
+    });
+});
+</script>
 {% endblock %}

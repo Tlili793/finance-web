@@ -33,6 +33,7 @@ class InsuranceChatRequest(BaseModel):
     user_id: int
     message: str
     context: UserContext = UserContext()   # ← replaces user_token
+    history: Optional[List[Message]] = []
 
 class InsuranceChatResponse(BaseModel):
     reply: str

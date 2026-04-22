@@ -1,0 +1,259 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Insurance Dashboard{% endblock %}
+{% block page_title %}
+    <div class="d-flex justify-content-between align-items-center w-100">
+        <span>Insurance Analytics</span>
+        <a href="{{ path('insurance_dashboard_pdf') }}" class="btn btn-outline-primary rounded-pill px-4 shadow-sm">
+            <i class="bi bi-file-earmark-pdf me-2"></i>Download PDF Report
+        </a>
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="row g-4 mb-4">
+    {# Summary Cards #}
+
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100" style="background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); color: white;">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="icon-circle bg-white bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                        <i class="bi bi-shield-check fs-4"></i>
+                    </div>
+                    <span class="badge bg-white bg-opacity-25 rounded-pill">Active Policies</span>
+                </div>
+                <h2 class="fw-bold mb-1">{{ totalPremium|number_format(2) }} TND</h2>
+                <p class="mb-0 opacity-75">Total Annual Premium</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100 bg-white">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="icon-circle bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                        <i class="bi bi-box-seam fs-4"></i>
+                    </div>
+                    <span class="badge bg-light text-success rounded-pill">{{ totalAssets }} Registered</span>
+                </div>
+                <h2 class="fw-bold mb-1 text-dark">{{ totalValue|number_format(0, '.', ' ') }} TND</h2>
+                <p class="mb-0 text-muted">Total Declared Asset Value</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100 bg-white">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="icon-circle bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                        <i class="bi bi-file-earmark-text fs-4"></i>
+                    </div>
+                    <span class="badge bg-light text-primary rounded-pill">Total Requests</span>
+                </div>
+                <h2 class="fw-bold mb-1 text-dark">{{ statusData|reduce((carry, v) => carry + v, 0) }}</h2>
+                <p class="mb-0 text-muted">Contracts & Applications</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    {# Main Charts #}
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0">Application Trends</h5>
+                <span class="small text-muted">Last 6 Months</span>
+            </div>
+            <div class="card-body">
+                <canvas id="timelineChart" style="max-height: 300px;"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold mb-0">Status Distribution</h5>
+            </div>
+            <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                <div style="width: 100%; max-width: 250px;">
+                    <canvas id="statusChart"></canvas>
+                </div>
+                <div class="mt-4 w-100">
+                    {% for status, count in statusData %}
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small text-muted"><i class="bi bi-circle-fill me-2" style="font-size: 0.6rem; color: {{ cycle(['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#6b7280'], loop.index0) }}"></i>{{ status|replace({'_': ' '})|title }}</span>
+                            <span class="fw-bold small">{{ count }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    {# Assets by Type #}
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold mb-0">Assets by Type</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="typeChart" style="max-height: 250px;"></canvas>
+            </div>
+        </div>
+    </div>
+
+    {# Recent Activity Table #}
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0">Recent Requests</h5>
+                <a href="{{ path('insurance_requests') }}" class="btn btn-sm btn-light border rounded-pill px-3">View All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Asset</th>
+                            <th>Package</th>
+                            <th>Premium</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for req in recentRequests %}
+                        <tr>
+                            <td class="ps-4">
+                                <div class="fw-bold">{{ req.asset.reference }}</div>
+                                <div class="small text-muted">{{ req.asset.type }}</div>
+                            </td>
+                            <td>{{ req.package.name }}</td>
+                            <td>{{ req.calculatedPremium }} TND</td>
+                            <td>
+                                {% set sClass = {'PENDING':'warning','APPROVED':'success','SIGNED':'primary','REJECTED':'danger'}[req.status] ?? 'secondary' %}
+                                <span class="badge rounded-pill text-bg-{{ sClass }}">{{ req.status }}</span>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="4" class="text-center py-4 text-muted">No recent activity</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mt-2 mb-4">
+    <div class="col-lg-12">
+        <div class="card border-0 shadow-sm rounded-4" style="background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);">
+            <div class="card-body p-4">
+                <div class="row align-items-center">
+                    <div class="col-lg-7">
+                        <h4 class="fw-bold mb-2">Still Have Questions?</h4>
+                        <p class="text-muted">Our insurance experts are here to help you with your policies, claims, or coverage details.</p>
+                        <div class="d-flex gap-3 mt-3 flex-wrap">
+                            <a href="{{ path('insurance_assistant_chat') }}" class="btn btn-dark rounded-pill px-4 fw-bold shadow-sm">
+                                <i class="bi bi-robot me-2"></i>Talk to AI Assistant
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="p-3 bg-white rounded-4 shadow-sm border mt-3 mt-lg-0">
+                            <h6 class="fw-bold mb-3"><i class="bi bi-envelope-at me-2 text-primary"></i>Message Support</h6>
+                            <form action="{{ path('insurance_contact') }}" method="post">
+                                <div class="mb-3">
+                                    <input type="text" name="subject" class="form-control form-control-sm rounded-3" placeholder="Subject" required>
+                                </div>
+                                <div class="mb-3">
+                                    <textarea name="message" class="form-control form-control-sm rounded-3" rows="2" placeholder="Your message..." required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-sm w-100 rounded-pill fw-bold">Send Message</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+$(document).ready(function() {
+    // 1. Timeline Chart
+    const timelineCtx = document.getElementById('timelineChart').getContext('2d');
+    new Chart(timelineCtx, {
+        type: 'line',
+        data: {
+            labels: {{ timelineLabels|json_encode|raw }},
+            datasets: [{
+                label: 'Requests',
+                data: {{ timelineValues|json_encode|raw }},
+                borderColor: '#6366f1',
+                backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: '#6366f1'
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // 2. Status Chart
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ statusLabels|json_encode|raw }},
+            datasets: [{
+                data: {{ statusValues|json_encode|raw }},
+                backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#6b7280'],
+                borderWidth: 0,
+                cutout: '70%'
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // 3. Asset Type Chart
+    const typeCtx = document.getElementById('typeChart').getContext('2d');
+    new Chart(typeCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ typeLabels|json_encode|raw }},
+            datasets: [{
+                data: {{ typeValues|json_encode|raw }},
+                backgroundColor: '#a855f7',
+                borderRadius: 8
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } },
+                y: { grid: { display: false } }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

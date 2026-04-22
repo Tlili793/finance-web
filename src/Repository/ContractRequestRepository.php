@@ -26,9 +26,10 @@ class ContractRequestRepository extends ServiceEntityRepository
         string $orderBy = 'r.createdAt',
         string $dir = 'DESC'
     ): array {
-        $allowedOrder = ['r.createdAt', 'r.calculatedPremium', 'r.status'];
+        $allowedOrder = ['r.id', 'r.createdAt', 'r.calculatedPremium', 'r.status', 'a.reference', 'p.name'];
         if (!in_array($orderBy, $allowedOrder, true)) {
-            $orderBy = 'r.createdAt';
+            $orderBy = 'r.id';
+            $dir = 'DESC';
         }
         $dir = strtoupper($dir) === 'ASC' ? 'ASC' : 'DESC';
 

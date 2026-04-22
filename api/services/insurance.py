@@ -27,13 +27,14 @@ async def get_insurance_reply(
     user_id: int,
     message: str,
     context: UserContext,
+    history: List[Message] = None,
 ) -> Tuple[str, int]:
 
     # 1. Merged guard + intent — one LLM call
     intent = await detect_intent(message)
 
     if intent == Intent.BLOCKED:
-        return BLOCKED_REPLY, len(user_memories.get(user_id, []))
+        return BLOCKED_REPLY, len(history) if history else 0
 
     # 2. Slice and format only the relevant data
     context_block = build_context_block(intent, context.model_dump())
@@ -44,11 +45,17 @@ async def get_insurance_reply(
         if context_block else message
     )
 
-    # 4. Call main LLM with history
-    if user_id not in user_memories:
-        user_memories[user_id] = []
+    # 4. Determine history to use
+    # If history is passed in the request, use it (master).
+    # Otherwise, fall back to in-memory store.
+    if history is not None:
+        history_messages = history
+    else:
+        if user_id not in user_memories:
+            user_memories[user_id] = []
+        history_messages = [Message(**m) for m in user_memories[user_id]]
 
-    history_messages = [Message(**m) for m in user_memories[user_id]]
+    # 5. Call main LLM
     request = PromptRequest(
         prompt=enriched_prompt,
         history=history_messages,
@@ -58,8 +65,11 @@ async def get_insurance_reply(
     )
 
     response = await call_llm(request)
+
+    # Update in-memory fallback
     user_memories[user_id] = [m.model_dump() for m in response.history][-20:]
-    return response.reply, len(user_memories[user_id])
+
+    return response.reply, len(response.history)
 
 
 def reset_user_memory(user_id: int) -> None:

@@ -1,0 +1,15 @@
+{% extends 'email/insurance/base.html.twig' %}
+
+{% block content %}
+    <p>You have received a new insurance support inquiry:</p>
+    
+    <div class="card">
+        <strong>From:</strong> {{ user.name }} ({{ user.email }})<br>
+        <strong>Subject:</strong> {{ subject }}
+    </div>
+
+    <p><strong>Message:</strong></p>
+    <p style="white-space: pre-wrap; background: #fff; padding: 15px; border: 1px solid #eee; border-radius: 4px;">{{ message }}</p>
+
+    <p><em>Please reply directly to the user's email address listed above.</em></p>
+{% endblock %}

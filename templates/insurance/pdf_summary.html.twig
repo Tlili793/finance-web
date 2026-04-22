@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+    body { font-family: 'Helvetica', Arial, sans-serif; color: #333; line-height: 1.5; margin: 30px; }
+    .header { border-bottom: 2px solid #6366f1; padding-bottom: 20px; margin-bottom: 30px; }
+    .title { font-size: 24pt; color: #6366f1; font-weight: bold; margin: 0; }
+    .subtitle { font-size: 10pt; color: #666; }
+    .section-title { font-size: 14pt; font-weight: bold; color: #333; margin: 30px 0 10px 0; border-left: 4px solid #6366f1; padding-left: 10px; background: #f8fafc; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    th { text-align: left; background: #f1f5f9; padding: 10px; font-size: 10pt; color: #475569; border-bottom: 1px solid #e2e8f0; }
+    td { padding: 10px; font-size: 10pt; border-bottom: 1px solid #f1f5f9; }
+    .badge { padding: 3px 8px; border-radius: 10px; font-size: 8pt; font-weight: bold; }
+    .summary-box { background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
+    .summary-item { margin-bottom: 5px; }
+    .footer { position: fixed; bottom: 0; width: 100%; text-align: center; font-size: 8pt; color: #94a3b8; padding-top: 10px; border-top: 1px solid #e2e8f0; }
+</style>
+</head>
+<body>
+
+<div class="header">
+    <div style="float: right; text-align: right;">
+        <div class="subtitle">Generated on: {{ date|date('d M Y, H:i') }}</div>
+        <div class="subtitle">User ID: #{{ user.id }}</div>
+    </div>
+    <h1 class="title">Insurance Portfolio Summary</h1>
+    <div class="subtitle">Personalized Report for <strong>{{ user.name }}</strong></div>
+</div>
+
+<div class="summary-box">
+    <div class="summary-item"><strong>Total Assets:</strong> {{ assets|length }}</div>
+    <div class="summary-item"><strong>Active Requests:</strong> {{ requests|length }}</div>
+    <div class="summary-item"><strong>Total Annual Premium:</strong> {{ totalPremium|number_format(2) }} TND</div>
+</div>
+
+<div class="section-title">INSURED ASSETS</div>
+<table>
+    <thead>
+        <tr>
+            <th>Reference</th>
+            <th>Type</th>
+            <th>Brand</th>
+            <th>Value (TND)</th>
+            <th>Registered</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for asset in assets %}
+        <tr>
+            <td><strong>{{ asset.reference }}</strong></td>
+            <td>{{ asset.type }}</td>
+            <td>{{ asset.brand|default('—') }}</td>
+            <td>{{ asset.declaredValue|number_format(2) }}</td>
+            <td>{{ asset.createdAt|date('Y-m-d') }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="section-title">CONTRACT REQUESTS</div>
+<table>
+    <thead>
+        <tr>
+            <th>Asset</th>
+            <th>Package</th>
+            <th>Premium</th>
+            <th>Status</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for req in requests %}
+        <tr>
+            <td>{{ req.asset.reference }}</td>
+            <td>{{ req.package.name }}</td>
+            <td>{{ req.calculatedPremium }} TND</td>
+            <td>{{ req.status }}</td>
+            <td>{{ req.createdAt|date('Y-m-d') }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="footer">
+    This document is an automated summary of your insurance data. &copy; {{ "now"|date("Y") }} MyFinance Insurance Portal.
+</div>
+
+</body>
+</html>

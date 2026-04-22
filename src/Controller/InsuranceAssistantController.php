@@ -76,6 +76,7 @@ class InsuranceAssistantController extends AbstractController
                             'user_id' => $user->getId(),
                             'message' => $message,
                             'context' => $contextData,
+                            'history' => $history,
                         ],
                         'timeout' => 30,
                     ]);

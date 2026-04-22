@@ -17,8 +17,19 @@ final class DashboardController extends AbstractController
     }*/ 
 
     #[Route('/', name: 'app_home')]
-    public function index(): Response
-    {
-        return $this->render('dashboard/index.html.twig');
+    public function index(
+        \App\Repository\ContractRequestRepository $requestRepo,
+        \App\Repository\InsuredAssetRepository $assetRepo,
+        \App\Repository\LoanRepository $loanRepo,
+        \App\Repository\TransactionRepository $transactionRepo
+    ): Response {
+        $user = $this->getUser();
+        
+        return $this->render('dashboard/index.html.twig', [
+            'requestCount' => $user ? count($requestRepo->findBy(['user' => $user])) : 0,
+            'assetCount'   => $user ? count($assetRepo->findBy(['user' => $user])) : 0,
+            'loanCount'    => $user ? count($loanRepo->findBy(['borrower' => $user])) : 0,
+            'paymentCount' => $user ? count($transactionRepo->findBy(['user' => $user])) : 0,
+        ]);
     }
 }

@@ -1,0 +1,19 @@
+{% extends 'email/insurance/base.html.twig' %}
+
+{% block content %}
+    <p>Hello <strong>{{ request.user.name }}</strong>,</p>
+    
+    <p>Congratulations! Your insurance contract for <strong>{{ request.asset.reference }}</strong> is now fully signed and officially active.</p>
+    
+    <div class="card">
+        <strong>Policy Status: ACTIVE</strong><br>
+        Document ID: {{ request.boldsignDocumentId|slice(0, 12) }}...<br>
+        Date: {{ "now"|date('Y-m-d') }}
+    </div>
+
+    <p>You can view your signed contract and manage your policy at any time through your insurance dashboard.</p>
+
+    <a href="{{ url('insurance_dashboard') }}" class="btn">Go to Dashboard</a>
+
+    <p>We are proud to have you as a valued customer.</p>
+{% endblock %}

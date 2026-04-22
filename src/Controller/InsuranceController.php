@@ -6,6 +6,7 @@ use App\Entity\InsuredAsset;
 use App\Repository\ContractRequestRepository;
 use App\Repository\InsurancePackageRepository;
 use App\Repository\InsuredAssetRepository;
+use App\Service\InsuranceMailerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,6 +16,129 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/insurance', name: 'insurance_')]
 class InsuranceController extends AbstractController
 {
+    #[Route('/dashboard', name: 'dashboard', methods: ['GET'])]
+    public function dashboard(
+        ContractRequestRepository $requestRepo,
+        InsuredAssetRepository $assetRepo
+    ): Response {
+        $user = $this->getUser();
+        if (!$user) return $this->redirectToRoute('app_login');
+
+        $requests = $requestRepo->findBy(['user' => $user]);
+        $assets   = $assetRepo->findBy(['user' => $user]);
+
+        // 1. Requests by Status (for Pie Chart)
+        $statusCounts = [];
+        foreach ($requests as $req) {
+            $s = $req->getStatus();
+            $statusCounts[$s] = ($statusCounts[$s] ?? 0) + 1;
+        }
+
+        // 2. Assets by Type (for Bar Chart)
+        $typeCounts = [];
+        foreach ($assets as $asset) {
+            $t = $asset->getType();
+            $typeCounts[$t] = ($typeCounts[$t] ?? 0) + 1;
+        }
+
+        // 3. Requests over time (last 6 months)
+        $timeline = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $date = (new \DateTime())->modify("-$i months")->format('M Y');
+            $timeline[$date] = 0;
+        }
+        foreach ($requests as $req) {
+            $date = $req->getCreatedAt() ? $req->getCreatedAt()->format('M Y') : null;
+            if ($date && isset($timeline[$date])) {
+                $timeline[$date]++;
+            }
+        }
+
+        // 4. Total Value & Premium
+        $totalPremium = 0;
+        $totalAssetValue = 0;
+        foreach ($requests as $req) {
+            if ($req->getStatus() === 'APPROVED' || $req->getStatus() === 'SIGNED') {
+                $totalPremium += (float)$req->getCalculatedPremium();
+            }
+        }
+        foreach ($assets as $asset) {
+            $totalAssetValue += (float)$asset->getDeclaredValue();
+        }
+
+        return $this->render('insurance/dashboard.html.twig', [
+            'statusLabels'  => array_keys($statusCounts),
+            'statusValues'  => array_values($statusCounts),
+            'typeLabels'    => array_keys($typeCounts),
+            'typeValues'    => array_values($typeCounts),
+            'timelineLabels'=> array_keys($timeline),
+            'timelineValues'=> array_values($timeline),
+            'totalPremium'  => $totalPremium,
+            'totalAssets'   => count($assets),
+            'totalValue'    => $totalAssetValue,
+            'recentRequests'=> array_slice(array_reverse($requests), 0, 5),
+            'statusData'    => $statusCounts, // Still needed for the legend list
+        ]);
+    }
+
+    #[Route('/dashboard/pdf', name: 'dashboard_pdf', methods: ['GET'])]
+    public function downloadPdf(
+        ContractRequestRepository $requestRepo,
+        InsuredAssetRepository $assetRepo
+    ): Response {
+        $user = $this->getUser();
+        if (!$user) throw $this->createAccessDeniedException();
+
+        $requests = $requestRepo->findBy(['user' => $user], ['createdAt' => 'DESC']);
+        $assets   = $assetRepo->findBy(['user' => $user], ['createdAt' => 'DESC']);
+
+        $totalPremium = 0;
+        foreach ($requests as $req) {
+            if ($req->getStatus() === 'APPROVED' || $req->getStatus() === 'SIGNED') {
+                $totalPremium += (float)$req->getCalculatedPremium();
+            }
+        }
+
+        $html = $this->renderView('insurance/pdf_summary.html.twig', [
+            'user'         => $user,
+            'requests'     => $requests,
+            'assets'       => $assets,
+            'totalPremium' => $totalPremium,
+            'date'         => new \DateTime(),
+        ]);
+
+        $options = new \Dompdf\Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', true);
+
+        $dompdf = new \Dompdf\Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        return new Response(
+            $dompdf->output(),
+            200,
+            [
+                'Content-Type'        => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="insurance_summary.pdf"',
+            ]
+        );
+    }
+
+    #[Route('/contact', name: 'contact', methods: ['POST'])]
+    public function contact(Request $request, InsuranceMailerService $mailer): Response
+    {
+        $subject = $request->request->get('subject');
+        $message = $request->request->get('message');
+        $user    = $this->getUser();
+
+        $mailer->sendSupportEmail($user, $subject, $message);
+
+        $this->addFlash('success', 'Your message has been sent to our insurance support team. We will get back to you shortly.');
+        return $this->redirectToRoute('insurance_dashboard');
+    }
+
     // ─── ASSETS ───────────────────────────────────────────────────────────────
 
     #[Route('/assets', name: 'assets', methods: ['GET'])]

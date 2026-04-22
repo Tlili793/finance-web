@@ -8,8 +8,8 @@ from fastapi import HTTPException
 
 from models import Message, PromptRequest, PromptResponse
 
-# Load .env from the api/ directory (one level up from utils/)
-load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent / ".env")
+# Load .env from the root directory (two levels up from utils/ then one more up to root)
+load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent.parent / ".env", override=True)
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 GROQ_API_URL = os.getenv(
