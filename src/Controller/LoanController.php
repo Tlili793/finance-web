@@ -220,7 +220,36 @@ class LoanController extends AbstractController
     }
 
     /**
-     * 2. CRUD: INDEX
+     * 2. MY REPAYMENTS — all repayments across all the user's loans
+     */
+    #[Route('/repayments', name: 'repayments', methods: ['GET'])]
+    public function repayments(LoanRepository $loanRepo, RepaymentRepository $repaymentRepo): Response
+    {
+        $loans = $loanRepo->findBy(['borrower' => $this->getUser()]);
+
+        // Collect repayments with their parent loan for display
+        $repayments = [];
+        foreach ($loans as $loan) {
+            foreach ($repaymentRepo->findBy(['loan' => $loan], ['paymentDate' => 'DESC']) as $r) {
+                $repayments[] = ['repayment' => $r, 'loan' => $loan];
+            }
+        }
+
+        // Sort all by date descending
+        usort($repayments, fn($a, $b) =>
+            $b['repayment']->getPaymentDate() <=> $a['repayment']->getPaymentDate()
+        );
+
+        $totalPaid = array_sum(array_map(fn($row) => (float)$row['repayment']->getAmount(), $repayments));
+
+        return $this->render('loan/repayments.html.twig', [
+            'rows'      => $repayments,
+            'totalPaid' => $totalPaid,
+        ]);
+    }
+
+    /**
+     * 3. CRUD: INDEX
      */
     #[Route('', name: 'index', methods: ['GET'])]
     public function index(LoanRepository $repo): Response
