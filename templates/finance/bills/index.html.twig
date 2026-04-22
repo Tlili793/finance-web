@@ -38,7 +38,7 @@
                         <td>{{ bill.amount|number_format(2,'.', ',') }}</td>
                         <td>Day {{ bill.dueDay }}</td>
                         <td>{{ bill.frequency|capitalize }}</td>
-                        <td>{{ bill.category|default('—') }}</td>
+                        <td>{{ bill.category|default('ΓÇö') }}</td>
                         <td>
                             {% if bill.status == 'PAID' %}<span class="badge bg-success">Paid</span>
                             {% else %}<span class="badge bg-warning text-dark">Unpaid</span>{% endif %}

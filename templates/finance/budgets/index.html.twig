@@ -31,7 +31,7 @@
                     {% if b.category %}<span class="badge bg-secondary">{{ b.category }}</span>{% endif %}
                 </div>
                 <div class="card-body">
-                    <p class="mb-1 text-muted small">{{ b.startDate|date('d/m/Y') }} → {{ b.endDate|date('d/m/Y') }}</p>
+                    <p class="mb-1 text-muted small">{{ b.startDate|date('d/m/Y') }} ΓåÆ {{ b.endDate|date('d/m/Y') }}</p>
                     <h5 class="mb-0">{{ b.amount|number_format(2,'.', ',') }} TND</h5>
                     <small class="text-muted">Spent: {{ b.spentAmount|number_format(2,'.', ',') }} TND</small>
                     <div class="progress mt-2" style="height:10px;">

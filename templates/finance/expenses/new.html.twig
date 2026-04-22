@@ -10,7 +10,7 @@
             <div class="card-header"><h3 class="card-title"><i class="bi bi-receipt me-2"></i>New Expense</h3></div>
             <div class="card-body">
                 <div class="alert alert-info mb-4">
-                    Budget: <strong>{{ budget.name }}</strong> — Remaining: 
+                    Budget: <strong>{{ budget.name }}</strong> ΓÇö Remaining: 
                     <strong>{{ (budget.amount - budget.spentAmount)|number_format(2,'.', ',') }} TND</strong>
                 </div>
                 <form method="post" action="{{ path('finance_expense_new', {id: budget.id}) }}">
@@ -21,7 +21,7 @@
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Category</label>
                         <select name="category" class="form-select">
-                            <option value="">— None —</option>
+                            <option value="">ΓÇö None ΓÇö</option>
                             {% for cat in ['Food','Transport','Health','Housing','Education','Entertainment','Other'] %}
                                 <option>{{ cat }}</option>
                             {% endfor %}
@@ -33,7 +33,7 @@
                     </div>
                     <div class="mb-4">
                         <label class="form-label fw-semibold">Description <small class="text-muted">(optional)</small></label>
-                        <textarea name="description" class="form-control" rows="2" placeholder="Brief description…"></textarea>
+                        <textarea name="description" class="form-control" rows="2" placeholder="Brief descriptionΓÇª"></textarea>
                     </div>
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i>Save Expense</button>

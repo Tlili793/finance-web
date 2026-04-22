@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}{{ budget.name }}{% endblock %}
-{% block page_title %}Budget — {{ budget.name }}{% endblock %}
+{% block page_title %}Budget ΓÇö {{ budget.name }}{% endblock %}
 
 {% block body %}
 {% for msg in app.flashes('success') %}
@@ -64,9 +64,9 @@
                 {% for e in budget.expenses %}
                     <tr>
                         <td>{{ e.amount|number_format(2,'.', ',') }} TND</td>
-                        <td>{{ e.category|default('—') }}</td>
+                        <td>{{ e.category|default('ΓÇö') }}</td>
                         <td>{{ e.expenseDate|date('d/m/Y') }}</td>
-                        <td>{{ e.description|default('—')|slice(0,40) }}</td>
+                        <td>{{ e.description|default('ΓÇö')|slice(0,40) }}</td>
                         <td class="text-end">
                             <a href="{{ path('finance_expense_edit', {id: e.id}) }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
                             <form method="post" action="{{ path('finance_expense_delete', {id: e.id}) }}" class="d-inline"

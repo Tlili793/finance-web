@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Edit Budget{% endblock %}
-{% block page_title %}Edit Budget — {{ budget.name }}{% endblock %}
+{% block page_title %}Edit Budget ΓÇö {{ budget.name }}{% endblock %}
 
 {% block body %}
 <div class="row justify-content-center">
@@ -21,7 +21,7 @@
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Category</label>
                         <select name="category" class="form-select">
-                            <option value="">— None —</option>
+                            <option value="">ΓÇö None ΓÇö</option>
                             {% for cat in ['Food','Transport','Health','Housing','Education','Entertainment','Other'] %}
                                 <option {% if budget.category == cat %}selected{% endif %}>{{ cat }}</option>
                             {% endfor %}

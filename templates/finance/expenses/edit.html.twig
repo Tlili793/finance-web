@@ -17,7 +17,7 @@
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Category</label>
                         <select name="category" class="form-select">
-                            <option value="">— None —</option>
+                            <option value="">ΓÇö None ΓÇö</option>
                             {% for cat in ['Food','Transport','Health','Housing','Education','Entertainment','Other'] %}
                                 <option {% if expense.category == cat %}selected{% endif %}>{{ cat }}</option>
                             {% endfor %}
