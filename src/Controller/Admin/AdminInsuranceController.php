@@ -2,6 +2,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\InsurancePackage;
+use App\Entity\ContractRequest;
 use App\Repository\ContractRequestRepository;
 use App\Repository\InsurancePackageRepository;
 use App\Repository\InsuredAssetRepository;

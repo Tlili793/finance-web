@@ -9,7 +9,7 @@ use App\Repository\RepaymentRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Dompdf\Dompdf;
 use Endroid\QrCode\QrCode;
-use Endroid\QrCode\Writer\PngWriter;
+use Endroid\QrCode\Writer\SvgWriter;
 use OpenAI;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -451,7 +451,7 @@ class LoanController extends AbstractController
         $totalPaid = array_sum(array_map(fn($r) => (float)$r->getAmount(), $repayments));
         
         $qrCode = new QrCode('LoanID:' . $loan->getId() . '|Remaining:' . ($loan->getAmount() - $totalPaid));
-        $writer = new PngWriter();
+        $writer = new SvgWriter();
         $qrBase64 = base64_encode($writer->write($qrCode)->getString());
         
         $html = $this->renderView('loan/invoice.html.twig', [

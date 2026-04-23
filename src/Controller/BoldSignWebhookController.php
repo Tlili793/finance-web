@@ -71,7 +71,7 @@ class BoldSignWebhookController extends AbstractController
         }
 
         // ── 3. Find the matching ContractRequest ──────────────────────────────
-        $req = $repo->findOneByBoldsignDocumentId($documentId);
+        $req = $this->repo->findOneByBoldsignDocumentId($documentId);
         if (!$req) {
             $logger->warning('BoldSign webhook: no ContractRequest for documentId', [
                 'documentId' => $documentId,
@@ -81,45 +81,45 @@ class BoldSignWebhookController extends AbstractController
         }
 
         // ── 4. Handle each event type ─────────────────────────────────────────
-        match ($event) {
-            // All signers have completed — contract is fully signed
-            'Completed', 'DocumentCompleted', 'document_completed' => (function () use ($req, $logger, $documentId) {
+        switch ($event) {
+            case 'Completed':
+            case 'DocumentCompleted':
+            case 'document_completed':
                 $req->setStatus('SIGNED');
                 $this->em->flush();
-                
-                // Send system notification email
                 $this->mailer->sendContractSignedNotification($req);
-
                 $logger->info('BoldSign: contract fully signed → SIGNED', [
                     'requestId'  => $req->getId(),
                     'documentId' => $documentId,
                 ]);
-            })(),
+                break;
 
-            // A signer declined to sign
-            'Declined', 'DocumentDeclined', 'document_declined' => (function () use ($req, $logger, $documentId) {
+            case 'Declined':
+            case 'DocumentDeclined':
+            case 'document_declined':
                 $req->setStatus('REJECTED');
-                $em->flush();
+                $this->em->flush();
                 $logger->warning('BoldSign: signer declined → REJECTED', [
                     'requestId'  => $req->getId(),
                     'documentId' => $documentId,
                 ]);
-            })(),
+                break;
 
-            // DocumentSigned fires per-signer (intermediate event) — just log it
-            'Signed', 'DocumentSigned', 'document_signed' => (function () use ($req, $em, $logger, $documentId) {
-                 // Optionally set to 'SIGNED' here too if it's a single-signer document
-                 $req->setStatus('SIGNED');
-                 $em->flush();
-                 $logger->info('BoldSign: signer signed → SIGNED', [
-                     'requestId'  => $req->getId(),
-                     'documentId' => $documentId,
-                 ]);
-            })(),
+            case 'Signed':
+            case 'DocumentSigned':
+            case 'document_signed':
+                $req->setStatus('SIGNED');
+                $this->em->flush();
+                $logger->info('BoldSign: signer signed → SIGNED', [
+                    'requestId'  => $req->getId(),
+                    'documentId' => $documentId,
+                ]);
+                break;
 
-            // Any other event (Sent, Viewed, etc.) — log and ignore
-            default => $logger->info('BoldSign webhook: unhandled event', ['event' => $event]),
-        };
+            default:
+                $logger->info('BoldSign webhook: unhandled event', ['event' => $event]);
+                break;
+        }
 
         return new Response('OK', Response::HTTP_OK);
     }
