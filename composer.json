@@ -7,6 +7,7 @@
         "php": ">=8.1",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "ahmed-bhs/doctrine-doctor": "1.0",
         "api-platform/core": "*",
         "api-platform/doctrine-orm": "*",
         "api-platform/symfony": "*",
@@ -50,7 +51,8 @@
         "symfony/webpack-encore-bundle": "^2.4",
         "symfony/yaml": "6.4.*",
         "twig/extra-bundle": "^2.12|^3.0",
-        "twig/twig": "^2.12|^3.0"
+        "twig/twig": "^2.12|^3.0",
+        "webmozart/assert": "1.11"
     },
     "config": {
         "allow-plugins": {
