@@ -42,6 +42,7 @@ class Expense
     private ?Budget $budget = null;
     
 
+
         // Relationship with Bill
     #[ORM\OneToOne(inversedBy: 'expense', cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: true)]

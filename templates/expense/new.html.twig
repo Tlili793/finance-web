@@ -3,15 +3,15 @@
 {% block body %}
 <div class="container py-4" style="max-width: 600px;">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="fw-bold mb-0">≡ƒÆ╕ Add New Expense</h3>
-        <a href="{{ path('finance_expenses') }}" class="btn btn-outline-secondary btn-sm">ΓåÉ Back</a>
+        <h3 class="fw-bold mb-0">💸 Add New Expense</h3>
+        <a href="{{ path('finance_expenses') }}" class="btn btn-outline-secondary btn-sm">← Back</a>
     </div>
 
-    {# ΓöÇΓöÇ Receipt Scanner Card ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ #}
+    {# ── Receipt Scanner Card ─────────────────────────── #}
     <div class="card border-0 shadow-sm mb-3" style="border-radius:12px; overflow:hidden;">
         <div style="padding:1rem 1.5rem; border-bottom:1px solid #f0f2f5; background:#f8f9fc;">
             <span style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:#8a94a6;">
-                ≡ƒô╖ Receipt Scanner (OCR)
+                📷 Receipt Scanner (OCR)
             </span>
         </div>
         <div class="card-body p-4">
@@ -27,7 +27,7 @@
                 cursor: pointer;
                 transition: border-color 0.2s;
             " id="dropZone" onclick="document.getElementById('receiptFile').click()">
-                <div style="font-size:2rem; margin-bottom:0.5rem;">≡ƒôä</div>
+                <div style="font-size:2rem; margin-bottom:0.5rem;">📄</div>
                 <div style="font-size:0.82rem; font-weight:600; color:#1a1f36;">Click to upload receipt</div>
                 <div style="font-size:0.72rem; color:#8a94a6; margin-top:4px;">JPG, PNG, PDF supported</div>
                 <input type="file" id="receiptFile" accept="image/*,.pdf" style="display:none;">
@@ -42,7 +42,7 @@
             <button type="button" id="scanBtn" onclick="scanReceipt()"
                 style="display:none; width:100%; margin-top:1rem;"
                 class="btn btn-dark btn-sm">
-                ≡ƒöì Scan Receipt
+                🔍 Scan Receipt
             </button>
 
             {# Loading #}
@@ -53,7 +53,7 @@
 
             {# Result #}
             <div id="scanResult" style="display:none; margin-top:1rem; padding:0.75rem 1rem; background:#f0fdf4; border-radius:8px; border-left:3px solid #16a34a;">
-                <span style="font-size:0.78rem; font-weight:600; color:#15803d;">Γ£à Receipt scanned! Form filled automatically.</span>
+                <span style="font-size:0.78rem; font-weight:600; color:#15803d;">✅ Receipt scanned! Form filled automatically.</span>
             </div>
 
             {# Error #}
@@ -63,7 +63,7 @@
         </div>
     </div>
 
-    {# ΓöÇΓöÇ Expense Form ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ #}
+    {# ── Expense Form ─────────────────────────────────── #}
     <div class="card border-0 shadow-sm" style="border-radius:12px;">
         <div class="card-body p-4">
             <form method="post" id="expenseForm">
@@ -89,14 +89,14 @@
                     <label class="form-label fw-semibold">Category</label>
                     <select name="category" id="categoryField" class="form-select">
                         <option value="">-- Select a category --</option>
-                        <option value="Food & Dining">≡ƒì╜∩╕Å Food & Dining</option>
-                        <option value="Housing & Rent">≡ƒÅá Housing & Rent</option>
-                        <option value="Transport">≡ƒÜù Transport</option>
-                        <option value="Healthcare">≡ƒÅÑ Healthcare</option>
-                        <option value="Entertainment">≡ƒÄ¼ Entertainment</option>
-                        <option value="Education">≡ƒôÜ Education</option>
-                        <option value="Utilities">≡ƒÆí Utilities</option>
-                        <option value="Other">≡ƒôª Other</option>
+                        <option value="Food & Dining">🍽️ Food & Dining</option>
+                        <option value="Housing & Rent">🏠 Housing & Rent</option>
+                        <option value="Transport">🚗 Transport</option>
+                        <option value="Healthcare">🏥 Healthcare</option>
+                        <option value="Entertainment">🎬 Entertainment</option>
+                        <option value="Education">📚 Education</option>
+                        <option value="Utilities">💡 Utilities</option>
+                        <option value="Other">📦 Other</option>
                     </select>
                 </div>
                 <div class="mb-3">
@@ -122,7 +122,7 @@
 <script>
 const OCR_API_KEY = 'K89873651388957';
 
-// ΓöÇΓöÇ File selection & preview ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// ── File selection & preview ──────────────────────────
 document.getElementById('receiptFile').addEventListener('change', function() {
     const file = this.files[0];
     if (!file) return;
@@ -146,7 +146,7 @@ document.getElementById('receiptFile').addEventListener('change', function() {
     document.getElementById('dropZone').style.borderColor = '#1a1f36';
 });
 
-// ΓöÇΓöÇ Scan receipt ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// ── Scan receipt ──────────────────────────────────────
 async function scanReceipt() {
     const file = document.getElementById('receiptFile').files[0];
     if (!file) return;
@@ -186,16 +186,16 @@ async function scanReceipt() {
     } catch (err) {
         document.getElementById('scanLoading').style.display = 'none';
         document.getElementById('scanError').style.display = 'block';
-        document.getElementById('scanErrorMsg').textContent = 'Γ¥î ' + (err.message || 'Could not read receipt. Please fill manually.');
+        document.getElementById('scanErrorMsg').textContent = '❌ ' + (err.message || 'Could not read receipt. Please fill manually.');
         document.getElementById('scanBtn').style.display = 'block';
     }
 }
 
-// ΓöÇΓöÇ Parse OCR text and fill form ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// ── Parse OCR text and fill form ──────────────────────
 function parseReceiptText(text) {
     const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
 
-    // ΓöÇΓöÇ Amount: look for total/montant/amount + number ΓöÇΓöÇ
+    // ── Amount: look for total/montant/amount + number ──
     let amount = null;
     const amountPatterns = [
         /total[^\d]*(\d+[.,]\d{1,2})/i,
@@ -224,7 +224,7 @@ function parseReceiptText(text) {
         document.getElementById('amountField').value = amount.toFixed(2);
     }
 
-    // ΓöÇΓöÇ Date: look for common date formats ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    // ── Date: look for common date formats ──────────────
     const datePatterns = [
         /(\d{2})[\/\-\.](\d{2})[\/\-\.](\d{4})/,  // dd/mm/yyyy
         /(\d{4})[\/\-\.](\d{2})[\/\-\.](\d{2})/,  // yyyy-mm-dd
@@ -251,7 +251,7 @@ function parseReceiptText(text) {
         }
     }
 
-    // ΓöÇΓöÇ Category: keyword detection ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    // ── Category: keyword detection ──────────────────────
     const textLower = text.toLowerCase();
     const categoryMap = {
         'Food & Dining':  ['restaurant', 'cafe', 'coffee', 'food', 'pizza', 'burger', 'meal', 'breakfast', 'lunch', 'dinner', 'snack', 'supermarket', 'grocery', 'carrefour', 'monoprix'],
@@ -269,7 +269,7 @@ function parseReceiptText(text) {
         }
     }
 
-    // ΓöÇΓöÇ Description: use first meaningful line ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    // ── Description: use first meaningful line ───────────
     const firstLine = lines.find(l => l.length > 3 && !/^\d+$/.test(l));
     if (firstLine) {
         document.getElementById('descriptionField').value = firstLine.substring(0, 100);

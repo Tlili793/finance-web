@@ -2,6 +2,8 @@ parameters:
     hcaptcha_site_key: '%env(HCAPTCHA_SITE_KEY)%'
     hcaptcha_secret_key: '%env(HCAPTCHA_SECRET_KEY)%'
 
+    huggingface_api_key: '%env(HUGGINGFACE_API_KEY)%'
+
 services:
     _defaults:
         autowire: true
@@ -49,3 +51,10 @@ services:
             $groqApiUrl: '%env(GROQ_API_URL)%'
             $groqModel: '%env(GROQ_MODEL)%'
 
+    App\Service\HuggingFaceService:
+        arguments:
+            $apiKey: '%huggingface_api_key%'
+    
+    App\Service\RulesBasedService:
+        autowire: true
+        autoconfigure: true

@@ -3,8 +3,8 @@
 {% block body %}
 <div class="container py-4" style="max-width: 600px;">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="fw-bold mb-0">Γ£Å∩╕Å Edit Expense</h3>
-        <a href="{{ path('finance_expenses') }}" class="btn btn-outline-secondary btn-sm">ΓåÉ Back</a>
+        <h3 class="fw-bold mb-0">✏️ Edit Expense</h3>
+        <a href="{{ path('finance_expenses') }}" class="btn btn-outline-secondary btn-sm">← Back</a>
     </div>
 
     <div class="card border-0 shadow-sm">
@@ -19,14 +19,14 @@
     <label class="form-label fw-semibold">Category</label>
     <select name="category" class="form-select">
         <option value="">-- Select a category --</option>
-        <option value="Food & Dining"    {{ expense.category == 'Food & Dining'    ? 'selected' : '' }}>≡ƒì╜∩╕Å Food & Dining</option>
-        <option value="Housing & Rent"   {{ expense.category == 'Housing & Rent'   ? 'selected' : '' }}>≡ƒÅá Housing & Rent</option>
-        <option value="Transport"        {{ expense.category == 'Transport'        ? 'selected' : '' }}>≡ƒÜù Transport</option>
-        <option value="Healthcare"       {{ expense.category == 'Healthcare'       ? 'selected' : '' }}>≡ƒÅÑ Healthcare</option>
-        <option value="Entertainment"    {{ expense.category == 'Entertainment'    ? 'selected' : '' }}>≡ƒÄ¼ Entertainment</option>
-        <option value="Education"        {{ expense.category == 'Education'        ? 'selected' : '' }}>≡ƒôÜ Education</option>
-        <option value="Utilities"        {{ expense.category == 'Utilities'        ? 'selected' : '' }}>≡ƒÆí Utilities</option>
-        <option value="Other"            {{ expense.category == 'Other'            ? 'selected' : '' }}>≡ƒôª Other</option>
+        <option value="Food & Dining"    {{ expense.category == 'Food & Dining'    ? 'selected' : '' }}>🍽️ Food & Dining</option>
+        <option value="Housing & Rent"   {{ expense.category == 'Housing & Rent'   ? 'selected' : '' }}>🏠 Housing & Rent</option>
+        <option value="Transport"        {{ expense.category == 'Transport'        ? 'selected' : '' }}>🚗 Transport</option>
+        <option value="Healthcare"       {{ expense.category == 'Healthcare'       ? 'selected' : '' }}>🏥 Healthcare</option>
+        <option value="Entertainment"    {{ expense.category == 'Entertainment'    ? 'selected' : '' }}>🎬 Entertainment</option>
+        <option value="Education"        {{ expense.category == 'Education'        ? 'selected' : '' }}>📚 Education</option>
+        <option value="Utilities"        {{ expense.category == 'Utilities'        ? 'selected' : '' }}>💡 Utilities</option>
+        <option value="Other"            {{ expense.category == 'Other'            ? 'selected' : '' }}>📦 Other</option>
     </select>
 </div>
                 <div class="mb-3">

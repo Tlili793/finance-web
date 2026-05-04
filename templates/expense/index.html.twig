@@ -40,20 +40,20 @@
 <div class="exp-page">
 <div class="container">
 
-    {# ΓöÇΓöÇ Page Header ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ #}
+    {# ── Page Header ──────────────────────────────────────── #}
     
     <div class="page-header d-flex justify-content-between align-items-center">
         <div>
-            <h4 class="fw-bold mb-1" style="color:#1a1f36;">≡ƒÆ╕ Expense Management</h4>
+            <h4 class="fw-bold mb-1" style="color:#1a1f36;">💸 Expense Management</h4>
             <p class="mb-0" style="color:#8a94a6; font-size:0.85rem;">Track and analyze your daily expenses</p>
         </div>
         <div class="d-flex gap-2">
-            <a href="{{ path('finance_budgets') }}" class="action-btn">ΓåÉ Budgets</a>
+            <a href="{{ path('finance_budgets') }}" class="action-btn">← Budgets</a>
             <a href="{{ path('finance_expense_new') }}" class="btn btn-sm btn-dark px-3">+ New Expense</a>
         </div>
     </div>
 
-    {# ΓöÇΓöÇ Compute totals ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ #}
+    {# ── Compute totals ───────────────────────────────────── #}
     {% set totalExpenses = 0 %}
     {% set expenseCount = 0 %}
     {% set highestExpense = 0 %}
@@ -76,7 +76,7 @@
     {% set currentMonth = 'now'|date('M Y') %}
     {% set currentMonthTotal = monthlyTotals[currentMonth]|default(0) %}
 
-    {# ΓöÇΓöÇ Stat Cards ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ #}
+    {# ── Stat Cards ───────────────────────────────────────── #}
     <div class="row g-3 mb-4">
         <div class="col-md-3">
             <div class="stat-card">
@@ -86,7 +86,7 @@
                         <div class="stat-value">{{ totalExpenses|number_format(2) }}</div>
                         <div style="font-size:0.75rem; color:#8a94a6;">TND spent</div>
                     </div>
-                    <div class="stat-icon">≡ƒÆ░</div>
+                    <div class="stat-icon">💰</div>
                 </div>
             </div>
         </div>
@@ -98,7 +98,7 @@
                         <div class="stat-value" style="color:#1d4ed8;">{{ currentMonthTotal|number_format(2) }}</div>
                         <div style="font-size:0.75rem; color:#8a94a6;">TND in {{ 'now'|date('F') }}</div>
                     </div>
-                    <div class="stat-icon">≡ƒôà</div>
+                    <div class="stat-icon">📅</div>
                 </div>
             </div>
         </div>
@@ -110,7 +110,7 @@
                         <div class="stat-value" style="color:#0d7a52;">{{ avgExpense|number_format(2) }}</div>
                         <div style="font-size:0.75rem; color:#8a94a6;">TND per transaction</div>
                     </div>
-                    <div class="stat-icon">≡ƒôè</div>
+                    <div class="stat-icon">📊</div>
                 </div>
             </div>
         </div>
@@ -122,13 +122,13 @@
                         <div class="stat-value">{{ expenseCount }}</div>
                         <div style="font-size:0.75rem; color:#8a94a6;">total recorded</div>
                     </div>
-                    <div class="stat-icon">≡ƒôï</div>
+                    <div class="stat-icon">📋</div>
                 </div>
             </div>
         </div>
     </div>
 
-    {# ΓöÇΓöÇ Insights + Monthly Trend ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ #}
+    {# ── Insights + Monthly Trend ─────────────────────────── #}
     {% if expenseCount > 0 %}
     <div class="row g-3 mb-4">
 
@@ -136,7 +136,7 @@
         <div class="col-md-4">
             <div class="section-card h-100">
                 <div class="section-header">
-                    <span class="section-title">≡ƒôê Spending Insights</span>
+                    <span class="section-title">📈 Spending Insights</span>
                 </div>
                 <div class="px-4 py-3">
                     <div class="insight-item">
@@ -159,7 +159,7 @@
         <div class="col-md-4">
             <div class="section-card h-100">
                 <div class="section-header">
-                    <span class="section-title">≡ƒÅ╖∩╕Å Top Categories</span>
+                    <span class="section-title">🏷️ Top Categories</span>
                 </div>
                 <div class="px-4 py-3">
                     {% for cat, amt in topCategories %}
@@ -181,7 +181,7 @@
         <div class="col-md-4">
             <div class="section-card h-100">
                 <div class="section-header">
-                    <span class="section-title">≡ƒôå Monthly Trend</span>
+                    <span class="section-title">📆 Monthly Trend</span>
                 </div>
                 <div class="px-4 py-3">
                     {% set maxMonthly = 0 %}
@@ -205,24 +205,24 @@
 
     </div>
     {% endif %}
-  {# ΓöÇΓöÇ Search & Filter Bar ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ #}
+  {# ── Search & Filter Bar ─────────────────────────────── #}
 <div class="px-4 py-3 border-bottom" style="border-color:#f0f2f5 !important; background:#fafbfd;">
     <div class="row g-2 align-items-center">
         <div class="col-md-4">
             <input type="text" id="searchInput" class="form-control form-control-sm"
-                   placeholder="≡ƒöì Search description or budget...">
+                   placeholder="🔍 Search description or budget...">
         </div>
         <div class="col-md-3">
             <select id="categoryFilter" class="form-select form-select-sm">
                 <option value="">All Categories</option>
-                <option value="Food & Dining">≡ƒì╜∩╕Å Food & Dining</option>
-                <option value="Housing & Rent">≡ƒÅá Housing & Rent</option>
-                <option value="Transport">≡ƒÜù Transport</option>
-                <option value="Healthcare">≡ƒÅÑ Healthcare</option>
-                <option value="Entertainment">≡ƒÄ¼ Entertainment</option>
-                <option value="Education">≡ƒôÜ Education</option>
-                <option value="Utilities">≡ƒÆí Utilities</option>
-                <option value="Other">≡ƒôª Other</option>
+                <option value="Food & Dining">🍽️ Food & Dining</option>
+                <option value="Housing & Rent">🏠 Housing & Rent</option>
+                <option value="Transport">🚗 Transport</option>
+                <option value="Healthcare">🏥 Healthcare</option>
+                <option value="Entertainment">🎬 Entertainment</option>
+                <option value="Education">📚 Education</option>
+                <option value="Utilities">💡 Utilities</option>
+                <option value="Other">📦 Other</option>
                 <option value="Uncategorized">Uncategorized</option>
                 <option value="Bill">Bill</option>
             </select>
@@ -245,16 +245,16 @@
         <small id="filterCount" style="color:#8a94a6;"></small>
     </div>
 </div>
-    {# ΓöÇΓöÇ Expenses Table ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ #}
+    {# ── Expenses Table ───────────────────────────────────── #}
     <div class="section-card">
         <div class="section-header">
-            <span class="section-title">≡ƒôï All Expenses</span>
-            <span style="font-size:0.78rem; color:#8a94a6;">{{ expenseCount }} transaction{{ expenseCount != 1 ? 's' : '' }} ΓÇö recent first</span>
+            <span class="section-title">📋 All Expenses</span>
+            <span style="font-size:0.78rem; color:#8a94a6;">{{ expenseCount }} transaction{{ expenseCount != 1 ? 's' : '' }} — recent first</span>
         </div>
 
         {% if expenses is empty %}
             <div class="text-center py-5">
-                <div style="font-size:3rem;">≡ƒô¡</div>
+                <div style="font-size:3rem;">📭</div>
                 <p style="color:#8a94a6; margin:0.5rem 0;">No expenses recorded yet</p>
                 <a href="{{ path('finance_expense_new') }}" class="btn btn-dark btn-sm mt-2">Add your first expense</a>
             </div>
@@ -294,13 +294,13 @@
                         </td>
                         <td class="text-end pe-4">
                             <div class="d-flex gap-1 justify-content-end">
-                                <a href="{{ path('finance_expense_edit', {'id': expense.id}) }}" class="action-btn" title="Edit">Γ£Å∩╕Å</a>
+                                <a href="{{ path('finance_expense_edit', {'id': expense.id}) }}" class="action-btn" title="Edit">✏️</a>
                                 <form action="{{ path('finance_expense_delete', {'id': expense.id}) }}"
                                       method="post" class="d-inline"
                                       onsubmit="return confirm('Delete this expense?')">
                                     <input type="hidden" name="_token"
                                            value="{{ csrf_token('delete_expense_' ~ expense.id) }}">
-                                    <button class="action-btn danger" title="Delete">≡ƒùæ</button>
+                                    <button class="action-btn danger" title="Delete">🗑</button>
                                 </form>
                             </div>
                         </td>

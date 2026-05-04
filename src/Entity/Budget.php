@@ -33,7 +33,6 @@ private ?string $amount = null;
     #[ORM\Embedded(class: DateRange::class, columnPrefix: false)]
     #[Assert\Valid]
     private DateRange $dateRange;
-
     
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'budgets')]
@@ -114,7 +113,6 @@ private ?string $amount = null;
 
     public function getBills(): Collection { return $this->bills; }
     public function getExpenses(): Collection { return $this->expenses; }
-
     public function getUpdatedAt(): ?\DateTimeInterface { return $this->updatedAt; }
     protected function setUpdatedAt(?\DateTimeInterface $updatedAt): static { $this->updatedAt = $updatedAt; return $this; }
 
@@ -125,12 +123,12 @@ private ?string $amount = null;
     protected function setUpdatedBy(?User $updatedBy): static { $this->updatedBy = $updatedBy; return $this; }
     
     public function getStatus(): string
-{
-    if ((float)$this->amount == 0) return 'No Budget';
-    $percentage = ((float)$this->spentAmount / (float)$this->amount) * 100;
-    if ($percentage <= 50) return 'On Track';
-    if ($percentage <= 75) return 'Warning';
-    if ($percentage <= 90) return 'Near Limit';
-    return 'Overspent';
-}
+    {
+        if ((float)$this->amount == 0) return 'No Budget';
+        $percentage = ((float)$this->spentAmount / (float)$this->amount) * 100;
+        if ($percentage <= 50) return 'On Track';
+        if ($percentage <= 75) return 'Warning';
+        if ($percentage <= 90) return 'Near Limit';
+        return 'Overspent';
+    }
 }

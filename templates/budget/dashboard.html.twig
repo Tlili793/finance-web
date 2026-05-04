@@ -8,7 +8,7 @@
     <div class="row">
         <div class="col-12 d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h1 class="mb-0"><i class="bi bi-graph-up-arrow me-2"></i>Financial Dashboard</h1>
+                <h1 class="mb-0">📊 Financial Dashboard</h1>
                 <p class="text-muted mb-0">Welcome back! Here's your financial overview.</p>
             </div>
             <a href="{{ path('finance_export_csv') }}" class="btn btn-success">
@@ -22,7 +22,9 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="card">
-                    <h5 class="mb-0"><i class="bi bi-bell-fill me-2"></i>Smart Notifications</h5>
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">🔔 Smart Notifications</h5>
+                </div>
                 <div class="card-body">
                     {% for notification in notifications %}
                         <div class="alert alert-{{ notification.type }} alert-dismissible fade show" role="alert">
@@ -139,7 +141,9 @@
         <!-- Spending Patterns -->
         <div class="col-md-6 mb-4">
             <div class="card h-100">
-                    <h5 class="mb-0"><i class="bi bi-bar-chart-fill me-2"></i>Spending Pattern Detector</h5>
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">📈 Spending Pattern Detector</h5>
+                </div>
                 <div class="card-body">
                     {% if spendingPatterns.total_expenses > 0 %}
                         <div class="row">
@@ -200,11 +204,13 @@
         <!-- Tips & Insights -->
         <div class="col-md-6 mb-4">
             <div class="card h-100">
-                    <h5 class="mb-0"><i class="bi bi-lightbulb-fill me-2"></i>Financial Insights</h5>
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">💡 Financial Insights</h5>
+                </div>
                 <div class="card-body">
                     {% if spendingPatterns.total_expenses > 0 %}
                         <div class="alert alert-info">
-                            <strong><i class="bi bi-info-circle-fill me-2"></i>Did you know?</strong>
+                            <strong>💭 Did you know?</strong>
                             <ul class="mb-0 mt-2">
                                 {% if spendingPatterns.biggest_category %}
                                     <li>Your biggest spending category is "{{ spendingPatterns.biggest_category }}". Consider setting a stricter budget for this category.</li>
@@ -220,7 +226,7 @@
                     {% endif %}
                     
                     <div class="alert alert-warning">
-                        <strong><i class="bi bi-lightbulb me-2"></i>Financial Tips:</strong>
+                        <strong>🎯 Financial Tips:</strong>
                         <ul class="mb-0 mt-2">
                             <li>Try to keep your expenses below 50% of your budget to maintain excellent financial health.</li>
                             <li>Review your bills regularly and pay them on time to avoid late fees.</li>
@@ -237,7 +243,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header bg-dark text-white">
-                    <h5 class="mb-0"><i class="bi bi-table me-2"></i>Budget Status Details</h5>
+                    <h5 class="mb-0">💰 Budget Status Details</h5>
                 </div>
                 <div class="card-body">
                     {% if budgets|length > 0 %}

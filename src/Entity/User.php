@@ -10,11 +10,11 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Attribute\Ignore;
 use App\Entity\Email;
 use App\Entity\Phone;
-use Symfony\Component\Uid\Uuid;
 use SensitiveParameter;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -103,7 +103,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: InsuredAsset::class)]
     private Collection $insuredAssets;
 
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Loan::class)]
+    #[ORM\OneToMany(mappedBy: 'borrower', targetEntity: Loan::class)]
     private Collection $loans;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Transaction::class)]
@@ -111,6 +111,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: ContractRequest::class)]
     private Collection $contractRequests;
+   
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Profile::class, cascade: ['persist', 'remove'])]
+    private Collection $profiles;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Suggestion::class, cascade: ['persist', 'remove'])]
+    private Collection $suggestions;
 
     public function __construct()
     {
@@ -124,6 +130,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->loans = new ArrayCollection();
         $this->transactions = new ArrayCollection();
         $this->contractRequests = new ArrayCollection();
+        $this->profiles = new ArrayCollection();
+        $this->suggestions = new ArrayCollection();
     }
 
     #[ORM\PrePersist]
@@ -352,6 +360,46 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function getProfiles(): Collection
+    {
+        return $this->profiles;
+    }
+
+    public function addProfile(Profile $profile): static
+    {
+        if (!$this->profiles->contains($profile)) {
+            $this->profiles->add($profile);
+            $profile->setUser($this);
+        }
+        return $this;
+    }
+
+    public function removeProfile(Profile $profile): static
+    {
+        $this->profiles->removeElement($profile);
+        return $this;
+    }
+
+    public function getSuggestions(): Collection
+    {
+        return $this->suggestions;
+    }
+
+    public function addSuggestion(Suggestion $suggestion): static
+    {
+        if (!$this->suggestions->contains($suggestion)) {
+            $this->suggestions->add($suggestion);
+            $suggestion->setUser($this);
+        }
+        return $this;
+    }
+
+    public function removeSuggestion(Suggestion $suggestion): static
+    {
+        $this->suggestions->removeElement($suggestion);
+        return $this;
+    }
+
     public function getBudgets(): Collection { return $this->budgets; }
     public function getComplaints(): Collection { return $this->complaints; }
     public function getInsuredAssets(): Collection { return $this->insuredAssets; }
@@ -359,4 +407,3 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getTransactions(): Collection { return $this->transactions; }
     public function getContractRequests(): Collection { return $this->contractRequests; }
 }
-

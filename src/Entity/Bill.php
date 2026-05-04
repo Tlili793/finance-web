@@ -10,7 +10,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 
 use App\Trait\BlameableTrait;
-
 #[ORM\Entity(repositoryClass: BillRepository::class)]
 #[ORM\Table(name: 'bill')]
 #[ORM\HasLifecycleCallbacks]

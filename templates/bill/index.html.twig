@@ -4,7 +4,7 @@
 
 {% block body %}
 <div class="container py-4">
-{# ΓöÇΓöÇ Page Header ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ #}
+{# ── Page Header ─────────────────────────────────────────── #}
 <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
     <div>
         <h2 class="fw-semibold mb-1" style="color: #1a1f36;">Bills Management</h2>
@@ -12,7 +12,7 @@
     </div>
     <div class="d-flex gap-2 align-items-center">
 
-        {# ΓöÇΓöÇ Notification Bell ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ #}
+        {# ── Notification Bell ─────────────────────── #}
         {% set currentDay = 'now'|date('j') %}
         {% set notifList = [] %}
 
@@ -22,19 +22,19 @@
                 {% if daysUntilDue < 0 %}
                     {% set notifList = notifList|merge([{
                         'type': 'danger',
-                        'icon': '≡ƒö┤',
+                        'icon': '🔴',
                         'message': '"' ~ bill.name ~ '" of ' ~ bill.amount|number_format(2) ~ ' TND was due on day ' ~ bill.dueDay
                     }]) %}
                 {% elseif daysUntilDue <= 3 %}
                     {% set notifList = notifList|merge([{
                         'type': 'warning',
-                        'icon': '≡ƒƒá',
+                        'icon': '🟠',
                         'message': '"' ~ bill.name ~ '" of ' ~ bill.amount|number_format(2) ~ ' TND is due in ' ~ daysUntilDue ~ ' day(s)'
                     }]) %}
                 {% elseif daysUntilDue <= 7 %}
                     {% set notifList = notifList|merge([{
                         'type': 'info',
-                        'icon': '≡ƒƒí',
+                        'icon': '🟡',
                         'message': '"' ~ bill.name ~ '" of ' ~ bill.amount|number_format(2) ~ ' TND is due in ' ~ daysUntilDue ~ ' days'
                     }]) %}
                 {% endif %}
@@ -44,14 +44,14 @@
         {% if notifList|length == 0 %}
             {% set notifList = notifList|merge([{
                 'type': 'success',
-                'icon': '≡ƒƒó',
+                'icon': '🟢',
                 'message': 'No upcoming bill reminders!'
             }]) %}
         {% endif %}
 
         <div class="position-relative" id="notifWrapper">
             <button onclick="toggleNotif()" class="btn btn-outline-secondary btn-sm position-relative" style="font-size:1.1rem; padding: 0.3rem 0.65rem; border-radius:8px;">
-                ≡ƒöö
+                🔔
                 {% set urgentCount = 0 %}
                 {% for n in notifList %}
                     {% if n.type == 'danger' or n.type == 'warning' %}
@@ -110,14 +110,14 @@
                 </div>
             </div>
         </div>
-        {# ΓöÇΓöÇ End Bell ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ #}
+        {# ── End Bell ──────────────────────────────── #}
 
-        <a href="{{ path('finance_budgets') }}" class="btn btn-outline-secondary btn-sm">ΓåÉ Budgets</a>
+        <a href="{{ path('finance_budgets') }}" class="btn btn-outline-secondary btn-sm">← Budgets</a>
         <a href="{{ path('finance_bill_new') }}" class="btn btn-dark btn-sm">+ New Bill</a>
     </div>
 </div>
 
-    {# ΓöÇΓöÇ Statistics Summary ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ #}
+    {# ── Statistics Summary ───────────────────────────────────── #}
     {% set totalAmount = 0 %}
     {% set paidCount = 0 %}
     {% set unpaidCount = 0 %}
@@ -152,7 +152,7 @@
                             <div class="text-muted small text-uppercase fw-semibold mb-1">Total Bills</div>
                             <div class="h3 fw-bold mb-0" style="color: #1a1f36;">{{ bills|length }}</div>
                         </div>
-                        <div class="text-muted" style="opacity: 0.5;">≡ƒôï</div>
+                        <div class="text-muted" style="opacity: 0.5;">📋</div>
                     </div>
                 </div>
             </div>
@@ -166,7 +166,7 @@
                             <div class="h3 fw-bold mb-0" style="color: #10b981;">{{ paidCount }}</div>
                             <small class="text-muted">${{ totalPaidAmount|number_format(2) }}</small>
                         </div>
-                        <div class="text-muted" style="opacity: 0.5;">Γ£à</div>
+                        <div class="text-muted" style="opacity: 0.5;">✅</div>
                     </div>
                 </div>
             </div>
@@ -180,7 +180,7 @@
                             <div class="h3 fw-bold mb-0" style="color: #ef4444;">{{ unpaidCount }}</div>
                             <small class="text-muted">${{ totalUnpaidAmount|number_format(2) }}</small>
                         </div>
-                        <div class="text-muted" style="opacity: 0.5;">ΓÜá∩╕Å</div>
+                        <div class="text-muted" style="opacity: 0.5;">⚠️</div>
                     </div>
                 </div>
             </div>
@@ -193,19 +193,19 @@
                             <div class="text-muted small text-uppercase fw-semibold mb-1">Overdue</div>
                             <div class="h3 fw-bold mb-0" style="color: #dc2626;">{{ overdueCount }}</div>
                         </div>
-                        <div class="text-muted" style="opacity: 0.5;">ΓÅ░</div>
+                        <div class="text-muted" style="opacity: 0.5;">⏰</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-{# ΓöÇΓöÇ FullCalendar ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ #}
+{# ── FullCalendar ─────────────────────────────────────── #}
 <div class="mt-4" style="background:#fff; border-radius:12px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); overflow:hidden;">
 
     <div style="padding: 1rem 1.5rem; border-bottom: 1px solid #f0f2f5; display:flex; justify-content:space-between; align-items:center;">
         <span style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:#8a94a6;">
-            ≡ƒôà Bill Calendar
+            📅 Bill Calendar
         </span>
         <div style="display:flex; gap:0.5rem;">
             <span style="font-size:0.72rem; color:#8a94a6; display:flex; align-items:center; gap:4px;">
@@ -222,7 +222,7 @@
     </div>
 </div>
 
-{# ΓöÇΓöÇ Bill Detail Modal ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ #}
+{# ── Bill Detail Modal ────────────────────────────────── #}
 <div id="billModal" style="
     display:none;
     position:fixed;
@@ -244,7 +244,7 @@
             position:absolute;top:1rem;right:1rem;
             background:none;border:none;font-size:1.2rem;
             color:#8a94a6;cursor:pointer;
-        ">Γ£ò</button>
+        ">✕</button>
         <h6 id="modalTitle" style="font-weight:700;color:#1a1f36;margin-bottom:1rem;font-size:1rem;"></h6>
         <div id="modalBody"></div>
     </div>
@@ -252,22 +252,22 @@
 
 
 
-    {# ΓöÇΓöÇ Bills Table ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ #}
+    {# ── Bills Table ─────────────────────────────────────────── #}
     <div class="card border-0 shadow-sm rounded-3">
         <div class="card-header bg-transparent border-0 pt-3 pb-0 px-0 mx-3">
             <div class="d-flex justify-content-between align-items-center">
                 <h6 class="text-muted fw-semibold mb-0 small text-uppercase tracking-wide">All Bills</h6>
                 <div class="text-muted small">
-                    <span class="me-2">ΓùÅ Paid</span>
-                    <span class="me-2">ΓùÅ Overdue</span>
-                    <span>ΓùÅ Pending</span>
+                    <span class="me-2">● Paid</span>
+                    <span class="me-2">● Overdue</span>
+                    <span>● Pending</span>
                 </div>
             </div>
         </div>
         <div class="card-body p-0">
             {% if bills is empty %}
                 <div class="text-center py-5 text-muted">
-                    <div class="mb-3" style="font-size: 3rem;">≡ƒô¡</div>
+                    <div class="mb-3" style="font-size: 3rem;">📭</div>
                     <p class="mb-2">No bills recorded yet</p>
                     {% if budgets is defined and budgets|length > 0 %}
                         <a href="{{ path('finance_bill_new', {'id': budgets[0].id}) }}" class="btn btn-dark btn-sm">
@@ -350,7 +350,7 @@
                                     <div class="btn-group btn-group-sm" role="group">
                                         <a href="{{ path('finance_bill_edit', {'id': bill.id}) }}" 
                                            class="btn btn-link text-secondary text-decoration-none p-1" title="Edit">
-                                            Γ£Å∩╕Å
+                                            ✏️
                                         </a>
                                         {% if bill.status != 'PAID' %}
                                             <form action="{{ path('finance_bill_pay', {'id': bill.id}) }}" 
@@ -359,7 +359,7 @@
                                                        value="{{ csrf_token('pay_bill_' ~ bill.id) }}">
                                                 <button class="btn btn-link text-success text-decoration-none p-1" title="Mark as Paid" 
                                                         onclick="return confirm('Mark this bill as paid?')">
-                                                    Γ£à
+                                                    ✅
                                                 </button>
                                             </form>
                                         {% endif %}
@@ -369,7 +369,7 @@
                                             <input type="hidden" name="_token" 
                                                    value="{{ csrf_token('delete_bill_' ~ bill.id) }}">
                                             <button class="btn btn-link text-danger text-decoration-none p-1" title="Delete">
-                                                ≡ƒùæ
+                                                🗑
                                             </button>
                                         </form>
                                     </div>
@@ -383,7 +383,7 @@
         </div>
     </div>
     
-    {# ΓöÇΓöÇ Footer Summary ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ #}
+    {# ── Footer Summary ───────────────────────────────────────── #}
     {% if bills|length > 0 %}
     <div class="row mt-4">
         <div class="col-12">
@@ -440,7 +440,7 @@
 </style>
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
 <script>
-// ΓöÇΓöÇ Notification bell ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// ── Notification bell ──────────────────────────────────
 function toggleNotif() {
     const dropdown = document.getElementById('notifDropdown');
     dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
@@ -452,7 +452,7 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// ΓöÇΓöÇ FullCalendar ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// ── FullCalendar ───────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
     const calendarEl = document.getElementById('billCalendar');
     const events     = {{ events|raw }};

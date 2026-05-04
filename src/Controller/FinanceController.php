@@ -20,14 +20,14 @@ use Symfony\Component\Mailer\MailerInterface;
 #[Route('/finance', name: 'finance_')]
 class FinanceController extends AbstractController
 {
-    // ΓöÇΓöÇΓöÇ BUDGETS ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    // ─── BUDGETS ──────────────────────────────────────────────────────────────
 #[Route('/budgets', name: 'budgets', methods: ['GET'])]
 public function budgets(BudgetRepository $repo): Response
 {
     $user    = $this->getUser();
     $budgets = $repo->findBy(['user' => $user], ['createdAt' => 'DESC']);
 
-    // ΓöÇΓöÇ Financial Health Score ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    // ── Financial Health Score ────────────────────────────
     $scores = [];
     foreach ($budgets as $budget) {
         if ((float)$budget->getAmount() > 0) {
@@ -45,7 +45,7 @@ public function budgets(BudgetRepository $repo): Response
     elseif ($healthScore >= 40) $healthStatus = 'Fair';
     else                        $healthStatus = 'Poor';
 
-    // ΓöÇΓöÇ Spending Patterns ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    // ── Spending Patterns ─────────────────────────────────
     $categoryTotals = [];
     $dayTotals      = [];
     $allExpenses    = [];
@@ -66,20 +66,20 @@ public function budgets(BudgetRepository $repo): Response
         ? array_sum(array_map(fn($e) => (float)$e->getAmount(), $allExpenses)) / count($allExpenses)
         : 0;
 
-    // ΓöÇΓöÇ Smart Notifications ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    // ── Smart Notifications ───────────────────────────────
     $notifications = [];
     foreach ($budgets as $budget) {
         $pct = (float)$budget->getAmount() > 0
             ? ((float)$budget->getSpentAmount() / (float)$budget->getAmount()) * 100
             : 0;
         if ($pct > 100) {
-            $notifications[] = ['type' => 'danger',  'message' => 'ΓÜá∩╕Å Budget "' . $budget->getName() . '" is overspent!'];
+            $notifications[] = ['type' => 'danger',  'message' => '⚠️ Budget "' . $budget->getName() . '" is overspent!'];
         } elseif ($pct >= 80) {
-            $notifications[] = ['type' => 'warning', 'message' => '≡ƒöö Budget "' . $budget->getName() . '" is near limit (' . round($pct) . '% used)'];
+            $notifications[] = ['type' => 'warning', 'message' => '🔔 Budget "' . $budget->getName() . '" is near limit (' . round($pct) . '% used)'];
         }
     }
     if (count($allExpenses) === 0) {
-        $notifications[] = ['type' => 'info', 'message' => '≡ƒô¥ No expenses yet. Start tracking your spending!'];
+        $notifications[] = ['type' => 'info', 'message' => '📝 No expenses yet. Start tracking your spending!'];
     }
 
     return $this->render('budget/index.html.twig', [
@@ -288,7 +288,7 @@ public function budgets(BudgetRepository $repo): Response
         return $this->redirectToRoute('finance_budgets');
     }
 
-    // ΓöÇΓöÇΓöÇ EXPENSES ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    // ─── EXPENSES ─────────────────────────────────────────────────────────────
 
 #[Route('/expenses', name: 'expenses', methods: ['GET'])]
 public function expenses(BudgetRepository $budgetRepo): Response
@@ -342,7 +342,7 @@ public function newExpense(
         $em->persist($expense);
         $em->flush();
 
-        // ΓöÇΓöÇ Send email ONLY when budget first gets exceeded ΓöÇΓöÇ
+        // ── Send email ONLY when budget first gets exceeded ──
         if ($newSpent > $budgetAmt && $oldSpent <= $budgetAmt) {
             try {
                 $userEmail = $this->getUser()->getEmail();
@@ -350,7 +350,7 @@ public function newExpense(
                 $email = (new TemplatedEmail())
                     ->from('noreply@financeapp.com')
                     ->to($userEmail)
-                    ->subject('ΓÜá∩╕Å Budget Exceeded: ' . $budget->getName())
+                    ->subject('⚠️ Budget Exceeded: ' . $budget->getName())
                     ->htmlTemplate('budget/budget_exceeded.html.twig')
                     ->context([
                         'budgetName'   => $budget->getName(),
@@ -362,7 +362,7 @@ public function newExpense(
                     ]);
 
                 $mailer->send($email);
-                $this->addFlash('warning', 'ΓÜá∩╕Å Budget "' . $budget->getName() . '" exceeded! Alert email sent.');
+                $this->addFlash('warning', '⚠️ Budget "' . $budget->getName() . '" exceeded! Alert email sent.');
 
             } catch (\Exception $e) {
                 // don't break the app if email fails
@@ -435,7 +435,7 @@ public function newExpense(
             : $this->redirectToRoute('finance_expenses');
     }
 
-    // ΓöÇΓöÇΓöÇ BILLS ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    // ─── BILLS ─────────────────────────────────────────────────────────────────
 
 #[Route('/bills', name: 'bills', methods: ['GET'])]
 public function bills(BudgetRepository $budgetRepo): Response
@@ -456,7 +456,7 @@ public function bills(BudgetRepository $budgetRepo): Response
         $month = (new \DateTime())->format('Y-m');
         $events[] = [
             'id'              => $bill->getId(),
-            'title'           => $bill->getName() . ' ΓÇö ' . number_format((float)$bill->getAmount(), 2) . ' TND',
+            'title'           => $bill->getName() . ' — ' . number_format((float)$bill->getAmount(), 2) . ' TND',
             'start'           => $month . '-' . $day,
             'backgroundColor' => $bill->getStatus() === 'PAID' ? '#f8f9fa' : '#e7f1ff',
             'borderColor'     => $bill->getStatus() === 'PAID' ? '#ced4da' : '#b6d4fe',
@@ -614,10 +614,10 @@ public function testEmail(MailerInterface $mailer): Response
             ]);
 
         $mailer->send($email);
-        return new Response('Γ£à Email sent! Check Mailtrap.');
+        return new Response('✅ Email sent! Check Mailtrap.');
 
     } catch (\Exception $e) {
-        return new Response('Γ¥î Error: ' . $e->getMessage());
+        return new Response('❌ Error: ' . $e->getMessage());
     }
-}
+    }
 }

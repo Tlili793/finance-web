@@ -104,13 +104,13 @@ class PersonalFinanceController extends AbstractController
     private function getHealthStatus(int $score): array
     {
         if ($score >= 80) {
-            return ['text' => 'Excellent', 'class' => 'success', 'icon' => '≡ƒÄë'];
+            return ['text' => 'Excellent', 'class' => 'success', 'icon' => '🎉'];
         } elseif ($score >= 60) {
-            return ['text' => 'Good', 'class' => 'info', 'icon' => '≡ƒæì'];
+            return ['text' => 'Good', 'class' => 'info', 'icon' => '👍'];
         } elseif ($score >= 40) {
-            return ['text' => 'Fair', 'class' => 'warning', 'icon' => 'ΓÜá∩╕Å'];
+            return ['text' => 'Fair', 'class' => 'warning', 'icon' => '⚠️'];
         } else {
-            return ['text' => 'Poor', 'class' => 'danger', 'icon' => '≡ƒö┤'];
+            return ['text' => 'Poor', 'class' => 'danger', 'icon' => '🔴'];
         }
     }
     
@@ -197,7 +197,7 @@ class PersonalFinanceController extends AbstractController
             if ($percentage > 100) {
                 $notifications[] = [
                     'type' => 'danger',
-                    'icon' => '≡ƒö┤',
+                    'icon' => '🔴',
                     'message' => sprintf(
                         'OVERSPENT: You have exceeded your "%s" budget by $%.2f!',
                         $budgetName,
@@ -210,7 +210,7 @@ class PersonalFinanceController extends AbstractController
             elseif ($percentage >= 90 && $percentage <= 100) {
                 $notifications[] = [
                     'type' => 'warning',
-                    'icon' => 'ΓÜá∩╕Å',
+                    'icon' => '⚠️',
                     'message' => sprintf(
                         'NEAR LIMIT: "%s" budget is at %.1f%% usage. Only $%.2f remaining!',
                         $budgetName,
@@ -224,7 +224,7 @@ class PersonalFinanceController extends AbstractController
             elseif ($percentage >= 75 && $percentage < 90) {
                 $notifications[] = [
                     'type' => 'info',
-                    'icon' => 'Γä╣∩╕Å',
+                    'icon' => 'ℹ️',
                     'message' => sprintf(
                         'WARNING: "%s" budget is at %.1f%% usage. Consider reducing expenses.',
                         $budgetName,
@@ -237,7 +237,7 @@ class PersonalFinanceController extends AbstractController
             elseif ($percentage < 30 && $spentAmount > 0) {
                 $notifications[] = [
                     'type' => 'success',
-                    'icon' => 'Γ£à',
+                    'icon' => '✅',
                     'message' => sprintf(
                         'On Track: "%s" budget is only at %.1f%% usage. Great job!',
                         $budgetName,
@@ -259,7 +259,7 @@ class PersonalFinanceController extends AbstractController
                     if ($dueDay >= $currentDay && $dueDay - $currentDay <= 5) {
                         $notifications[] = [
                             'type' => 'warning',
-                            'icon' => '≡ƒôà',
+                            'icon' => '📅',
                             'message' => sprintf(
                                 'Bill Reminder: "%s" of $%.2f is due on day %d of the month.',
                                 $bill->getName(),
@@ -273,7 +273,7 @@ class PersonalFinanceController extends AbstractController
                     elseif ($dueDay < $currentDay) {
                         $notifications[] = [
                             'type' => 'danger',
-                            'icon' => 'ΓÅ░',
+                            'icon' => '⏰',
                             'message' => sprintf(
                                 'OVERDUE BILL: "%s" of $%.2f was due on day %d. Please pay immediately!',
                                 $bill->getName(),
