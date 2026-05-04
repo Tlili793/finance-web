@@ -19,7 +19,7 @@
 <div class="row g-4">
 
     {# ═══════════════════════════════════════════════════════════════════════════
-       LEFT COLUMN — Add New User Form (like JavaFX side panel)
+       LEFT COLUMN — Add New User Form
     ═══════════════════════════════════════════════════════════════════════════ #}
     <div class="col-xl-3 col-lg-4">
         <div class="card card-primary card-outline h-100">
@@ -143,20 +143,63 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <h3 class="card-title mb-0">All Users</h3>
-                <form method="get" class="d-flex gap-2">
-                    <input type="text" name="q" value="{{ search_term }}"
-                           class="form-control form-control-sm"
-                           placeholder="Search name or email…" style="width:220px">
-                    <button class="btn btn-sm btn-outline-secondary">
-                        <i class="bi bi-search"></i>
-                    </button>
-                    {% if search_term %}
-                        <a href="{{ path('admin_user_index') }}" class="btn btn-sm btn-outline-danger">
-                            <i class="bi bi-x"></i>
-                        </a>
+            </div>
+
+            {# ── AI / Basic Search Bar ─────────────────────────────────────────── #}
+            <div class="card-body border-bottom pb-3">
+                <form method="GET" action="{{ path('admin_user_index') }}">
+                    <div class="input-group">
+                        <input
+                            type="text"
+                            name="q"
+                            class="form-control"
+                            placeholder="{{ search_mode == 'ai' ? 'e.g. Show inactive Google users...' : 'Search by name or email...' }}"
+                            value="{{ search_term ?? '' }}"
+                        >
+                        {# Hidden field carries the current mode #}
+                        <input type="hidden" name="mode" id="searchMode" value="{{ search_mode ?? 'basic' }}">
+
+                        {# Toggle button #}
+                        <button
+                            type="button"
+                            id="toggleMode"
+                            class="btn btn-{{ search_mode == 'ai' ? 'warning' : 'secondary' }}"
+                            title="Toggle AI search"
+                        >
+                            <i class="bi bi-{{ search_mode == 'ai' ? 'robot' : 'search' }}"></i>
+                            {{ search_mode == 'ai' ? 'AI Search ON' : 'Basic Search' }}
+                        </button>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search"></i> Search
+                        </button>
+
+                        {% if search_term %}
+                            <a href="{{ path('admin_user_index') }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x"></i> Clear
+                            </a>
+                        {% endif %}
+                    </div>
+
+                    {# AI mode hint #}
+                    {% if search_mode == 'ai' %}
+                        <small class="text-muted mt-1 d-block">
+                            <i class="bi bi-lightbulb"></i>
+                            Try: "Show inactive Google users" · "Find admins who haven't logged in recently" · "Unverified accounts older than 7 days"
+                        </small>
                     {% endif %}
                 </form>
+
+                {# AI explanation banner #}
+                {% if explanation %}
+                    <div class="alert alert-{{ ai_success ? 'info' : 'warning' }} mt-2 mb-0 py-2">
+                        <i class="bi bi-{{ ai_success ? 'robot' : 'exclamation-triangle' }}"></i>
+                        {{ explanation }}
+                        <span class="badge bg-secondary ms-2">{{ users|length }} result(s)</span>
+                    </div>
+                {% endif %}
             </div>
+
             <div class="card-body table-responsive p-0">
                 <table class="table table-hover align-middle text-nowrap mb-0">
                     <thead class="table-light">
@@ -177,7 +220,6 @@
                             <td class="text-muted small">{{ user.id }}</td>
                             <td>
                                 <div class="d-flex align-items-center gap-2">
-                                    {# DiceBear-style generated avatar (CSS, no external call) #}
                                     <div class="user-avatar-circle"
                                          style="background:{{ loop.index is odd ? '#3b82f6' : '#8b5cf6' }}">
                                         {{ user.name|first|upper }}
@@ -335,6 +377,21 @@ function togglePwd(inputId, btn) {
     input.type = isText ? 'password' : 'text';
     btn.querySelector('i').className = isText ? 'bi bi-eye' : 'bi bi-eye-slash';
 }
+
+// AI search toggle
+document.getElementById('toggleMode').addEventListener('click', function () {
+    const modeInput = document.getElementById('searchMode');
+    const isAi = modeInput.value === 'ai';
+    modeInput.value = isAi ? 'basic' : 'ai';
+
+    this.className = 'btn btn-' + (isAi ? 'secondary' : 'warning');
+    this.innerHTML = '<i class="bi bi-' + (isAi ? 'search' : 'robot') + '"></i> '
+                   + (isAi ? 'Basic Search' : 'AI Search ON');
+
+    document.querySelector('input[name="q"]').placeholder = isAi
+        ? 'Search by name or email...'
+        : 'e.g. Show inactive Google users...';
+});
 </script>
 
 <style>

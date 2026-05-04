@@ -11,23 +11,47 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-
+use App\Services\AiUserSearchService;
 #[IsGranted('ROLE_ADMIN')]
 #[Route('/admin/users')]
 class AdminUserController extends AbstractController
 {
     // ─── List + inline create form ─────────────────────────────────────────────
     #[Route('', name: 'admin_user_index', methods: ['GET'])]
-    public function index(Request $request, UserRepository $userRepository): Response
-    {
-        $q     = $request->query->get('q');
-        $users = $q ? $userRepository->searchByNameOrEmail($q) : $userRepository->findAll();
+public function index(
+    Request $request,
+    UserRepository $userRepository,
+    AiUserSearchService $aiSearch
+): Response {
+    $q           = $request->query->get('q', '');
+    $searchMode  = $request->query->get('mode', 'basic'); // 'basic' or 'ai'
+    $users       = [];
+    $explanation = null;
+    $aiSuccess   = null;
 
-        return $this->render('admin/user/index.html.twig', [
-            'users'       => $users,
-            'search_term' => $q,
-        ]);
+    if ($q !== '') {
+        if ($searchMode === 'ai') {
+            // ── AI natural language search ────────────────────────────────
+            $result      = $aiSearch->parseSearchQuery($q);
+            $users       = $userRepository->findByAiFilters($result['filters']);
+            $explanation = $result['explanation'];
+            $aiSuccess   = $result['success'];
+        } else {
+            // ── Basic keyword search (existing behavior) ──────────────────
+            $users = $userRepository->searchByNameOrEmail($q);
+        }
+    } else {
+        $users = $userRepository->findAll();
     }
+
+    return $this->render('admin/user/index.html.twig', [
+        'users'       => $users,
+        'search_term' => $q,
+        'search_mode' => $searchMode,
+        'explanation' => $explanation,
+        'ai_success'  => $aiSuccess,
+    ]);
+}
 
     // ─── Create ────────────────────────────────────────────────────────────────
     #[Route('/new', name: 'admin_user_new', methods: ['POST'])]

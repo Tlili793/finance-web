@@ -27,3 +27,8 @@ services:
     App\Controller\InsuranceAssistantController:
         arguments:
             $fastapiUrl: '%env(FASTAPI_URL)%'
+    App\Services\AiUserSearchService:
+        arguments:
+            $groqApiKey: '%env(GROQ_API_KEY_SEARCH)%'
+            $groqApiUrl: '%env(GROQ_API_URL)%'
+            $groqModel:  '%env(GROQ_MODEL)%'        
