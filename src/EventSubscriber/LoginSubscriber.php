@@ -14,7 +14,10 @@ class LoginSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private EntityManagerInterface $em,
+<<<<<<< HEAD
+=======
         private RouterInterface $router,
+>>>>>>> origin/user
     ) {}
 
     public static function getSubscribedEvents(): array
@@ -44,7 +47,7 @@ class LoginSubscriber implements EventSubscriberInterface
         }
 
         // Stamp lastLogin
-        $user->setLastLogin(new \DateTime());
+
         $this->em->flush();
     }
 }
