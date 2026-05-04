@@ -19,7 +19,6 @@ services:
             $hcaptchaSiteKey: '%hcaptcha_site_key%'
             $hcaptchaSecretKey: '%hcaptcha_secret_key%'
 
-
     App\Controller\PaymentController:
         arguments:
             $paymeeApiKey: '%env(PAYMEE_API_KEY)%'
@@ -43,3 +42,10 @@ services:
     App\Service\InsuranceMailerService:
         arguments:
             $mailerSender: 'yasmine912003@gmail.com'
+
+    App\Services\AiUserSearchService:
+        arguments:
+            $groqApiKey: '%env(GROQ_API_KEY)%'
+            $groqApiUrl: '%env(GROQ_API_URL)%'
+            $groqModel: '%env(GROQ_MODEL)%'
+

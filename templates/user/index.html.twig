@@ -84,17 +84,17 @@
                     <td>
                         <div class="d-flex gap-1">
                             <!-- View -->
-                            <a href="{{ path('app_user_show', {'id': user.id}) }}"
+                            <a href="{{ path('admin_user_show', {'id': user.id}) }}"
                                class="btn btn-sm btn-info" title="View">
                                 <i class="bi bi-eye"></i>
                             </a>
                             <!-- Edit -->
-                            <a href="{{ path('app_user_edit', {'id': user.id}) }}"
+                            <a href="{{ path('admin_user_edit', {'id': user.id}) }}"
                                class="btn btn-sm btn-warning" title="Edit">
                                 <i class="bi bi-pencil"></i>
                             </a>
                             <!-- Activate / Deactivate -->
-                            <form method="post" action="{{ path('app_user_toggle_active', {'id': user.id}) }}">
+                            <form method="post" action="{{ path('admin_user_toggle_active', {'id': user.id}) }}">
                                 <input type="hidden" name="_token"
                                        value="{{ csrf_token('toggle-active' ~ user.id) }}">
                                 <button class="btn btn-sm {{ user.isActive ? 'btn-secondary' : 'btn-success' }}"
@@ -103,7 +103,7 @@
                                 </button>
                             </form>
                             <!-- Delete -->
-                            <form method="post" action="{{ path('app_user_delete', {'id': user.id}) }}"
+                            <form method="post" action="{{ path('admin_user_delete', {'id': user.id}) }}"
                                   onsubmit="return confirm('Delete {{ user.name }}? This cannot be undone.')">
                                 <input type="hidden" name="_token"
                                        value="{{ csrf_token('delete' ~ user.id) }}">

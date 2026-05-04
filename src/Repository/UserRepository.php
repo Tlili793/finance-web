@@ -83,4 +83,66 @@ class UserRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * AI-powered search — applies structured filters returned by Groq.
+     *
+     * @param array $filters
+     * @return User[]
+     */
+    public function findByAiFilters(array $filters): array
+    {
+        $qb = $this->createQueryBuilder('u');
+
+        if (isset($filters['isActive'])) {
+            $qb->andWhere('u.isActive = :isActive')
+               ->setParameter('isActive', (bool) $filters['isActive']);
+        }
+
+        if (isset($filters['isVerified'])) {
+            $qb->andWhere('u.isVerified = :isVerified')
+               ->setParameter('isVerified', (bool) $filters['isVerified']);
+        }
+
+        if (isset($filters['googleAccount'])) {
+            $qb->andWhere('u.googleAccount = :googleAccount')
+               ->setParameter('googleAccount', (bool) $filters['googleAccount']);
+        }
+
+        if (isset($filters['createdAfter'])) {
+            $qb->andWhere('u.createdAt >= :createdAfter')
+               ->setParameter('createdAfter', new \DateTime($filters['createdAfter']));
+        }
+
+        if (isset($filters['createdBefore'])) {
+            $qb->andWhere('u.createdAt <= :createdBefore')
+               ->setParameter('createdBefore', new \DateTime($filters['createdBefore']));
+        }
+
+        if (isset($filters['lastLoginBefore'])) {
+            $qb->andWhere('u.lastLogin <= :lastLoginBefore OR u.lastLogin IS NULL')
+               ->setParameter('lastLoginBefore', new \DateTime($filters['lastLoginBefore']));
+        }
+
+        if (isset($filters['lastLoginAfter'])) {
+            $qb->andWhere('u.lastLogin >= :lastLoginAfter')
+               ->setParameter('lastLoginAfter', new \DateTime($filters['lastLoginAfter']));
+        }
+
+        if (isset($filters['keyword'])) {
+            $qb->andWhere('u.name LIKE :keyword OR u.email.address LIKE :keyword')
+               ->setParameter('keyword', '%' . $filters['keyword'] . '%');
+        }
+
+        $orderField = $filters['orderBy'] ?? 'createdAt';
+        $orderDir   = $filters['orderDir'] ?? 'DESC';
+        $allowedFields = ['createdAt', 'lastLogin', 'name', 'id'];
+        if (!in_array($orderField, $allowedFields)) {
+            $orderField = 'createdAt';
+        }
+
+        $qb->orderBy('u.' . $orderField, $orderDir === 'ASC' ? 'ASC' : 'DESC');
+
+        return $qb->getQuery()->getResult();
+    }
 }

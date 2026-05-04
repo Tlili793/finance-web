@@ -9,7 +9,7 @@ final class UserControllerTest extends WebTestCase
     public function testIndex(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/user');
+        $client->request('GET', '/admin/user');
 
         self::assertResponseIsSuccessful();
     }
