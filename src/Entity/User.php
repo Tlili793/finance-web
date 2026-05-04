@@ -11,9 +11,14 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Validator\Constraints as Assert;
+use App\Entity\Email;
+use App\Entity\Phone;
+use Symfony\Component\Uid\Uuid;
+use SensitiveParameter;
+use Symfony\Component\Serializer\Attribute\Ignore;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ORM\Table(name: "`user`")]
+#[ORM\Table(name: 'app_user')]
 #[ORM\HasLifecycleCallbacks]
 #[ApiResource(
     normalizationContext: ["groups" => ["user:read"]],
@@ -22,10 +27,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: 'uuid', unique: true)]
     #[Groups(["user:read"])]
-    private ?int $id = null;
+    private ?Uuid $id = null;
 
     #[ORM\Column(length: 100)]
     #[Groups(["user:read", "user:write"])]
@@ -125,7 +129,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->updatedAt = new \DateTime();
     }
 
-    public function getId(): ?int
+    public function getId(): ?Uuid
     {
         return $this->id;
     }
