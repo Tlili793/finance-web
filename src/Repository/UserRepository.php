@@ -83,4 +83,80 @@ class UserRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
-}
+/**
+ * AI-powered search — applies structured filters returned by Groq.
+ *
+ * @param array $filters
+ * @return User[]
+ */
+public function findByAiFilters(array $filters): array
+{
+    $qb = $this->createQueryBuilder('u');
+
+    // isActive filter
+    if (isset($filters['isActive'])) {
+        $qb->andWhere('u.isActive = :isActive')
+           ->setParameter('isActive', (bool) $filters['isActive']);
+    }
+
+    // isVerified filter
+    if (isset($filters['isVerified'])) {
+        $qb->andWhere('u.isVerified = :isVerified')
+           ->setParameter('isVerified', (bool) $filters['isVerified']);
+    }
+
+    // googleAccount filter
+    if (isset($filters['googleAccount'])) {
+        $qb->andWhere('u.googleAccount = :googleAccount')
+           ->setParameter('googleAccount', (bool) $filters['googleAccount']);
+    }
+
+    // roleId filter (1 = admin, 2 = user)
+    if (isset($filters['roleId'])) {
+        $qb->andWhere('u.roleId = :roleId')
+           ->setParameter('roleId', (int) $filters['roleId']);
+    }
+
+    // createdAt — signed up after date
+    if (isset($filters['createdAfter'])) {
+        $qb->andWhere('u.createdAt >= :createdAfter')
+           ->setParameter('createdAfter', new \DateTime($filters['createdAfter']));
+    }
+
+    // createdAt — signed up before date
+    if (isset($filters['createdBefore'])) {
+        $qb->andWhere('u.createdAt <= :createdBefore')
+           ->setParameter('createdBefore', new \DateTime($filters['createdBefore']));
+    }
+
+    // lastLogin — not logged in since date
+    if (isset($filters['lastLoginBefore'])) {
+        $qb->andWhere('u.lastLogin <= :lastLoginBefore OR u.lastLogin IS NULL')
+           ->setParameter('lastLoginBefore', new \DateTime($filters['lastLoginBefore']));
+    }
+
+    // lastLogin — logged in after date
+    if (isset($filters['lastLoginAfter'])) {
+        $qb->andWhere('u.lastLogin >= :lastLoginAfter')
+           ->setParameter('lastLoginAfter', new \DateTime($filters['lastLoginAfter']));
+    }
+
+    // name or email keyword fallback
+    if (isset($filters['keyword'])) {
+        $qb->andWhere('u.name LIKE :keyword OR u.email LIKE :keyword')
+           ->setParameter('keyword', '%' . $filters['keyword'] . '%');
+    }
+
+    // orderBy
+    $orderField = $filters['orderBy'] ?? 'createdAt';
+    $orderDir   = $filters['orderDir'] ?? 'DESC';
+
+    $allowedFields = ['createdAt', 'lastLogin', 'name', 'email', 'id'];
+    if (!in_array($orderField, $allowedFields)) {
+        $orderField = 'createdAt';
+    }
+
+    $qb->orderBy('u.' . $orderField, $orderDir === 'ASC' ? 'ASC' : 'DESC');
+
+    return $qb->getQuery()->getResult();
+}}
