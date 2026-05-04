@@ -7,11 +7,20 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+use App\Trait\BlameableTrait;
+
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
-#[ORM\Table(name: 'transaction')]
+#[ORM\Table(name: 'app_transaction')]
+#[ORM\HasLifecycleCallbacks]
 #[ApiResource]
 class Transaction
 {
+    use BlameableTrait;
+
+    public function __construct()
+    {
+        $this->money = new Money();
+    }
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -21,10 +30,9 @@ class Transaction
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
-    #[ORM\Column(type: Types::DECIMAL, precision: 15, scale: 2)]
-    #[Assert\NotBlank]
-    #[Assert\Positive]
-    private ?string $amount = null;
+    #[ORM\Embedded(class: Money::class, columnPrefix: false)]
+    #[Assert\Valid]
+    private Money $money;
 
     #[ORM\Column(length: 20)]
     #[Assert\NotBlank]
@@ -36,7 +44,7 @@ class Transaction
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: false)]
     private ?\DateTimeInterface $createdAt = null;
 
     #[ORM\Column(length: 30, nullable: true)]
@@ -45,13 +53,12 @@ class Transaction
     #[ORM\Column(type: Types::INTEGER, nullable: true)]
     private ?int $referenceId = null;
 
-    #[ORM\Column(length: 10, options: ['default' => 'TND'])]
-    private ?string $currency = 'TND';
 
     #[ORM\PrePersist]
     public function onPrePersist(): void
     {
         $this->createdAt = new \DateTime();
+        $this->updateAuditTimestampsOnPersist();
     }
 
     public function getId(): ?int { return $this->id; }
@@ -59,8 +66,8 @@ class Transaction
     public function getUser(): ?User { return $this->user; }
     public function setUser(?User $user): static { $this->user = $user; return $this; }
 
-    public function getAmount(): ?string { return $this->amount; }
-    public function setAmount(string $amount): static { $this->amount = $amount; return $this; }
+    public function getAmount(): ?string { return $this->money->getAmount(); }
+    public function setAmount(string $amount): static { $this->money = new Money($amount, $this->money->getCurrency()); return $this; }
 
     public function getType(): ?string { return $this->type; }
     public function setType(string $type): static { $this->type = $type; return $this; }
@@ -72,7 +79,7 @@ class Transaction
     public function setDescription(?string $description): static { $this->description = $description; return $this; }
 
     public function getCreatedAt(): ?\DateTimeInterface { return $this->createdAt; }
-    public function setCreatedAt(?\DateTimeInterface $createdAt): static { $this->createdAt = $createdAt; return $this; }
+    protected function setCreatedAt(?\DateTimeInterface $createdAt): static { $this->createdAt = $createdAt; return $this; }
 
     public function getReferenceType(): ?string { return $this->referenceType; }
     public function setReferenceType(?string $referenceType): static { $this->referenceType = $referenceType; return $this; }
@@ -80,6 +87,6 @@ class Transaction
     public function getReferenceId(): ?int { return $this->referenceId; }
     public function setReferenceId(?int $referenceId): static { $this->referenceId = $referenceId; return $this; }
 
-    public function getCurrency(): ?string { return $this->currency; }
-    public function setCurrency(string $currency): static { $this->currency = $currency; return $this; }
+    public function getCurrency(): ?string { return $this->money->getCurrency(); }
+    public function setCurrency(string $currency): static { $this->money = new Money($this->money->getAmount(), $currency); return $this; }
 }

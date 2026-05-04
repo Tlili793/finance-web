@@ -44,7 +44,7 @@ class LoginSubscriber implements EventSubscriberInterface
         }
 
         // Stamp lastLogin
-        $user->setLastLogin(new \DateTime());
+        $user->recordLogin();
         $this->em->flush();
     }
 }

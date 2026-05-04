@@ -30,14 +30,9 @@ private ?string $name = null;
 #[Assert\Positive(message: 'Amount must be greater than 0')]
 private ?string $amount = null;
 
-#[ORM\Column(type: Types::DATE_MUTABLE)]
-#[Assert\NotNull(message: 'Start date is required')]
-private ?\DateTimeInterface $startDate = null;
-
-#[ORM\Column(type: Types::DATE_MUTABLE)]
-#[Assert\NotNull(message: 'End date is required')]
-#[Assert\GreaterThan(propertyPath: 'startDate', message: 'End date must be after start date')]
-private ?\DateTimeInterface $endDate = null;
+    #[ORM\Embedded(class: DateRange::class, columnPrefix: false)]
+    #[Assert\Valid]
+    private DateRange $dateRange;
 
     
 
@@ -51,23 +46,42 @@ private ?\DateTimeInterface $endDate = null;
     #[ORM\Column(type: Types::DECIMAL, precision: 15, scale: 2, options: ['default' => '0.00'])]
     private ?string $spentAmount = '0.00';
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: false)]
     private ?\DateTimeInterface $createdAt = null;
 
-    #[ORM\OneToMany(mappedBy: 'budget', targetEntity: Bill::class, cascade: ['remove'], orphanRemoval: true)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $updatedAt = null;
+
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $createdBy = null;
+
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?User $updatedBy = null;
+
+    #[ORM\OneToMany(mappedBy: 'budget', targetEntity: Bill::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $bills;
 
-    #[ORM\OneToMany(mappedBy: 'budget', targetEntity: Expense::class, cascade: ['remove'], orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'budget', targetEntity: Expense::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $expenses;
 
     #[ORM\PrePersist]
     public function onPrePersist(): void
     {
         $this->createdAt = new \DateTime();
+        $this->updatedAt = new \DateTime();
+    }
+
+    #[ORM\PreUpdate]
+    public function onPreUpdate(): void
+    {
+        $this->updatedAt = new \DateTime();
     }
 
     public function __construct()
     {
+        $this->dateRange = new DateRange();
         $this->bills = new ArrayCollection();
         $this->expenses = new ArrayCollection();
     }
@@ -80,11 +94,11 @@ private ?\DateTimeInterface $endDate = null;
     public function getAmount(): ?string { return $this->amount; }
     public function setAmount(string $amount): static { $this->amount = $amount; return $this; }
 
-    public function getStartDate(): ?\DateTimeInterface { return $this->startDate; }
-    public function setStartDate(\DateTimeInterface $startDate): static { $this->startDate = $startDate; return $this; }
+    public function getStartDate(): ?\DateTimeInterface { return $this->dateRange->getStartDate(); }
+    public function setStartDate(\DateTimeInterface $startDate): static { $this->dateRange = new DateRange($startDate, $this->dateRange->getEndDate()); return $this; }
 
-    public function getEndDate(): ?\DateTimeInterface { return $this->endDate; }
-    public function setEndDate(\DateTimeInterface $endDate): static { $this->endDate = $endDate; return $this; }
+    public function getEndDate(): ?\DateTimeInterface { return $this->dateRange->getEndDate(); }
+    public function setEndDate(\DateTimeInterface $endDate): static { $this->dateRange = new DateRange($this->dateRange->getStartDate(), $endDate); return $this; }
 
     public function getUser(): ?User { return $this->user; }
     public function setUser(?User $user): static { $this->user = $user; return $this; }
@@ -96,10 +110,19 @@ private ?\DateTimeInterface $endDate = null;
     public function setSpentAmount(string $spentAmount): static { $this->spentAmount = $spentAmount; return $this; }
 
     public function getCreatedAt(): ?\DateTimeInterface { return $this->createdAt; }
-    public function setCreatedAt(?\DateTimeInterface $createdAt): static { $this->createdAt = $createdAt; return $this; }
+    protected function setCreatedAt(?\DateTimeInterface $createdAt): static { $this->createdAt = $createdAt; return $this; }
 
     public function getBills(): Collection { return $this->bills; }
     public function getExpenses(): Collection { return $this->expenses; }
+
+    public function getUpdatedAt(): ?\DateTimeInterface { return $this->updatedAt; }
+    protected function setUpdatedAt(?\DateTimeInterface $updatedAt): static { $this->updatedAt = $updatedAt; return $this; }
+
+    public function getCreatedBy(): ?User { return $this->createdBy; }
+    protected function setCreatedBy(?User $createdBy): static { $this->createdBy = $createdBy; return $this; }
+
+    public function getUpdatedBy(): ?User { return $this->updatedBy; }
+    protected function setUpdatedBy(?User $updatedBy): static { $this->updatedBy = $updatedBy; return $this; }
     
     public function getStatus(): string
 {

@@ -49,7 +49,7 @@ class UserRepository extends ServiceEntityRepository
     public function searchByNameOrEmail(string $q): array
     {
         return $this->createQueryBuilder('u')
-            ->where('u.name LIKE :q OR u.email LIKE :q')
+            ->where('u.name LIKE :q OR u.email.address LIKE :q')
             ->setParameter('q', '%' . $q . '%')
             ->orderBy('u.name', 'ASC')
             ->getQuery()

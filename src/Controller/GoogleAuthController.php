@@ -103,7 +103,7 @@ class GoogleAuthController extends AbstractController
         }
 
         // ── Find existing user or create a new one ────────────────────────────
-        $user = $this->userRepository->findOneBy(['email' => $googleEmail]);
+        $user = $this->userRepository->findOneBy(['email.address' => $googleEmail]);
 
         if (!$user) {
             // Auto-register — Google accounts are pre-verified
@@ -128,7 +128,7 @@ class GoogleAuthController extends AbstractController
         }
 
         // Stamp last login
-        $user->setLastLogin(new \DateTime());
+        $user->recordLogin();
         $this->em->flush();
 
         // ── Manually log the user into Symfony's security system ─────────────

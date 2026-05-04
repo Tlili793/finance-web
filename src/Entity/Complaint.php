@@ -7,12 +7,15 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Validator\NoProfanity;
+use App\Trait\BlameableTrait;
 
 #[ORM\Entity(repositoryClass: ComplaintRepository::class)]
 #[ORM\Table(name: 'complaint')]
+#[ORM\HasLifecycleCallbacks]
 #[ApiResource]
 class Complaint
 {
+    use BlameableTrait;
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -37,13 +40,14 @@ class Complaint
     #[ORM\JoinColumn(nullable: true)]
     private ?User $user = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: false)]
     private ?\DateTimeInterface $createdAt = null;
 
     #[ORM\PrePersist]
     public function onPrePersist(): void
     {
         $this->createdAt = new \DateTime();
+        $this->updateAuditTimestampsOnPersist();
     }
 
     public function getId(): ?int { return $this->id; }
@@ -64,5 +68,5 @@ class Complaint
     public function setUser(?User $user): static { $this->user = $user; return $this; }
 
     public function getCreatedAt(): ?\DateTimeInterface { return $this->createdAt; }
-    public function setCreatedAt(?\DateTimeInterface $createdAt): static { $this->createdAt = $createdAt; return $this; }
+    protected function setCreatedAt(?\DateTimeInterface $createdAt): static { $this->createdAt = $createdAt; return $this; }
 }

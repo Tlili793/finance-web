@@ -7,11 +7,15 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+use App\Trait\BlameableTrait;
+
 #[ORM\Entity(repositoryClass: ContractRequestRepository::class)]
 #[ORM\Table(name: 'contract_request')]
+#[ORM\HasLifecycleCallbacks]
 #[ApiResource]
 class ContractRequest
 {
+    use BlameableTrait;
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -35,7 +39,7 @@ class ContractRequest
     #[ORM\Column(length: 20, options: ['default' => 'PENDING'])]
     private ?string $status = 'PENDING';
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: false)]
     private ?\DateTimeInterface $createdAt = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -45,6 +49,7 @@ class ContractRequest
     public function onPrePersist(): void
     {
         $this->createdAt = new \DateTime();
+        $this->updateAuditTimestampsOnPersist();
     }
 
     public function getId(): ?int { return $this->id; }
@@ -65,7 +70,7 @@ class ContractRequest
     public function setStatus(string $status): static { $this->status = $status; return $this; }
 
     public function getCreatedAt(): ?\DateTimeInterface { return $this->createdAt; }
-    public function setCreatedAt(?\DateTimeInterface $createdAt): static { $this->createdAt = $createdAt; return $this; }
+    protected function setCreatedAt(?\DateTimeInterface $createdAt): static { $this->createdAt = $createdAt; return $this; }
 
     public function getBoldsignDocumentId(): ?string { return $this->boldsignDocumentId; }
     public function setBoldsignDocumentId(?string $boldsignDocumentId): static { $this->boldsignDocumentId = $boldsignDocumentId; return $this; }

@@ -8,11 +8,15 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+use App\Trait\BlameableTrait;
+
 #[ORM\Entity(repositoryClass: InsuredContractRepository::class)]
 #[ORM\Table(name: 'insured_contract')]
+#[ORM\HasLifecycleCallbacks]
 #[ApiResource]
 class InsuredContract
 {
+    use BlameableTrait;
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -26,10 +30,10 @@ class InsuredContract
     #[Assert\NotBlank]
     private ?string $boldsignDocumentId = null;
 
-    #[ORM\Column(length: 20, enumType: InsuredContractStatus::class, options: ['default' => 'NOT_SIGNED'])]
-    private InsuredContractStatus $status = InsuredContractStatus::NOT_SIGNED;
+    #[ORM\Column(length: 20, options: ['default' => 'NOT_SIGNED'])]
+    private string $status = 'NOT_SIGNED';
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: false)]
     private ?\DateTimeInterface $createdAt = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
@@ -42,6 +46,7 @@ class InsuredContract
     public function onPrePersist(): void
     {
         $this->createdAt = new \DateTime();
+        $this->updateAuditTimestampsOnPersist();
     }
 
     public function getId(): ?int { return $this->id; }
@@ -52,14 +57,14 @@ class InsuredContract
     public function getBoldsignDocumentId(): ?string { return $this->boldsignDocumentId; }
     public function setBoldsignDocumentId(string $boldsignDocumentId): static { $this->boldsignDocumentId = $boldsignDocumentId; return $this; }
 
-    public function getStatus(): InsuredContractStatus { return $this->status; }
-    public function setStatus(InsuredContractStatus $status): static { $this->status = $status; return $this; }
+    public function getStatus(): InsuredContractStatus { return InsuredContractStatus::from($this->status); }
+    public function setStatus(InsuredContractStatus $status): static { $this->status = $status->value; return $this; }
 
     public function getCreatedAt(): ?\DateTimeInterface { return $this->createdAt; }
-    public function setCreatedAt(?\DateTimeInterface $createdAt): static { $this->createdAt = $createdAt; return $this; }
+    protected function setCreatedAt(?\DateTimeInterface $createdAt): static { $this->createdAt = $createdAt; return $this; }
 
     public function getSignedAt(): ?\DateTimeInterface { return $this->signedAt; }
-    public function setSignedAt(?\DateTimeInterface $signedAt): static { $this->signedAt = $signedAt; return $this; }
+    protected function setSignedAt(?\DateTimeInterface $signedAt): static { $this->signedAt = $signedAt; return $this; }
 
     public function getLocalFilePath(): ?string { return $this->localFilePath; }
     public function setLocalFilePath(?string $localFilePath): static { $this->localFilePath = $localFilePath; return $this; }

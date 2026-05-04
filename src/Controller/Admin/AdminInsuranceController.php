@@ -108,10 +108,15 @@ class AdminInsuranceController extends AbstractController
         $packages = $packageRepo->findBy(['isActive' => true]);
 
         if ($request->isMethod('POST')) {
-            $asset = $assetRepo->find($request->request->get('asset_id'));
-            $package = $packageRepo->find($request->request->get('package_id'));
+            $assetId   = $request->request->get('asset_id');
+            $packageId = $request->request->get('package_id');
 
-            if ($asset && $package) {
+            // Fetch package to read its pricing data; use getReference() for asset
+            // since we only need it for the FK association (admin skips ownership check).
+            $package = $packageRepo->find($packageId);
+
+            if ($assetId && $package) {
+                $asset = $em->getReference(\App\Entity\InsuredAsset::class, $assetId);
                 $premium = round((float)$package->getBasePrice() * (float)$package->getRiskMultiplier(), 2);
                 $contractRequest->setAsset($asset);
                 $contractRequest->setPackage($package);
@@ -141,12 +146,14 @@ class AdminInsuranceController extends AbstractController
         ContractRequestRepository $repo,
         EntityManagerInterface $em
     ): Response {
-        $req = $repo->find($id);
-        if (!$req) {
+        // Verify existence before using a proxy — getReference() skips the SELECT
+        // since em->remove() only needs the PK, not the full entity state.
+        if (!$repo->find($id)) {
             throw $this->createNotFoundException();
         }
 
-        $em->remove($req);
+        $ref = $em->getReference(\App\Entity\ContractRequest::class, $id);
+        $em->remove($ref);
         $em->flush();
 
         $this->addFlash('success', "Request #{$id} deleted.");

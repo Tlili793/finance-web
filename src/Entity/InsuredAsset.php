@@ -7,11 +7,15 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+use App\Trait\BlameableTrait;
+
 #[ORM\Entity(repositoryClass: InsuredAssetRepository::class)]
 #[ORM\Table(name: 'insured_asset')]
+#[ORM\HasLifecycleCallbacks]
 #[ApiResource]
 class InsuredAsset
 {
+    use BlameableTrait;
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -27,7 +31,7 @@ class InsuredAsset
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: false)]
     private ?\DateTimeInterface $createdAt = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -56,6 +60,7 @@ class InsuredAsset
     public function onPrePersist(): void
     {
         $this->createdAt = new \DateTime();
+        $this->updateAuditTimestampsOnPersist();
     }
 
     public function getId(): ?int { return $this->id; }
@@ -70,7 +75,7 @@ class InsuredAsset
     public function setDescription(?string $description): static { $this->description = $description; return $this; }
 
     public function getCreatedAt(): ?\DateTimeInterface { return $this->createdAt; }
-    public function setCreatedAt(?\DateTimeInterface $createdAt): static { $this->createdAt = $createdAt; return $this; }
+    protected function setCreatedAt(?\DateTimeInterface $createdAt): static { $this->createdAt = $createdAt; return $this; }
 
     public function getLocation(): ?string { return $this->location; }
     public function setLocation(?string $location): static { $this->location = $location; return $this; }

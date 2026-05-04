@@ -9,12 +9,15 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 
 
+use App\Trait\BlameableTrait;
+
 #[ORM\Entity(repositoryClass: BillRepository::class)]
-#[ORM\Table(name: 'bills')]
+#[ORM\Table(name: 'bill')]
 #[ORM\HasLifecycleCallbacks]
 #[ApiResource]
 class Bill
 {
+    use BlameableTrait;
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -48,13 +51,13 @@ private ?string $frequency = null;
     private ?string $description = null;
 
     #[ORM\ManyToOne(targetEntity: Budget::class, inversedBy: 'bills')]
-    #[ORM\JoinColumn(nullable: true)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Budget $budget = null;
 
     #[ORM\Column(length: 20, options: ['default' => 'UNPAID'])]
     private ?string $status = 'UNPAID';
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: false)]
     private ?\DateTimeInterface $createdAt = null;
         // Relationship with Expense
     #[ORM\OneToOne(mappedBy: 'bill', cascade: ['persist', 'remove'])]
@@ -64,6 +67,7 @@ private ?string $frequency = null;
     public function onPrePersist(): void
     {
         $this->createdAt = new \DateTime();
+        $this->updateAuditTimestampsOnPersist();
     }
 
     public function getId(): ?int { return $this->id; }
@@ -93,7 +97,7 @@ private ?string $frequency = null;
     public function setStatus(string $status): static { $this->status = $status; return $this; }
 
     public function getCreatedAt(): ?\DateTimeInterface { return $this->createdAt; }
-    public function setCreatedAt(?\DateTimeInterface $createdAt): static { $this->createdAt = $createdAt; return $this; }
+    protected function setCreatedAt(?\DateTimeInterface $createdAt): static { $this->createdAt = $createdAt; return $this; }
         public function getExpense(): ?Expense
     {
         return $this->expense;

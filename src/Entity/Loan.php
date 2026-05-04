@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use App\Trait\BlameableTrait;
 
 #[ORM\Entity(repositoryClass: LoanRepository::class)]
 #[ORM\Table(name: 'loan')]
@@ -15,6 +16,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource]
 class Loan
 {
+    use BlameableTrait;
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -33,18 +35,14 @@ class Loan
     #[Assert\NotBlank]
     private ?string $interestRate = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
-    #[Assert\NotNull]
-    private ?\DateTimeInterface $startDate = null;
-
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
-    #[Assert\NotNull]
-    private ?\DateTimeInterface $endDate = null;
+    #[ORM\Embedded(class: DateRange::class, columnPrefix: false)]
+    #[Assert\Valid]
+    private DateRange $dateRange;
 
     #[ORM\Column(length: 20, options: ['default' => 'active'])]
     private ?string $status = 'active';
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: false)]
     private ?\DateTimeInterface $createdAt = null;
 
     #[ORM\OneToMany(mappedBy: 'loan', targetEntity: Repayment::class)]
@@ -54,10 +52,12 @@ class Loan
     public function onPrePersist(): void
     {
         $this->createdAt = new \DateTime();
+        $this->updateAuditTimestampsOnPersist();
     }
 
     public function __construct()
     {
+        $this->dateRange = new DateRange();
         $this->repayments = new ArrayCollection();
     }
 
@@ -72,17 +72,17 @@ class Loan
     public function getInterestRate(): ?string { return $this->interestRate; }
     public function setInterestRate(string $interestRate): static { $this->interestRate = $interestRate; return $this; }
 
-    public function getStartDate(): ?\DateTimeInterface { return $this->startDate; }
-    public function setStartDate(\DateTimeInterface $startDate): static { $this->startDate = $startDate; return $this; }
+    public function getStartDate(): ?\DateTimeInterface { return $this->dateRange->getStartDate(); }
+    public function setStartDate(\DateTimeInterface $startDate): static { $this->dateRange = new DateRange($startDate, $this->dateRange->getEndDate()); return $this; }
 
-    public function getEndDate(): ?\DateTimeInterface { return $this->endDate; }
-    public function setEndDate(\DateTimeInterface $endDate): static { $this->endDate = $endDate; return $this; }
+    public function getEndDate(): ?\DateTimeInterface { return $this->dateRange->getEndDate(); }
+    public function setEndDate(\DateTimeInterface $endDate): static { $this->dateRange = new DateRange($this->dateRange->getStartDate(), $endDate); return $this; }
 
     public function getStatus(): ?string { return $this->status; }
     public function setStatus(string $status): static { $this->status = $status; return $this; }
 
     public function getCreatedAt(): ?\DateTimeInterface { return $this->createdAt; }
-    public function setCreatedAt(?\DateTimeInterface $createdAt): static { $this->createdAt = $createdAt; return $this; }
+    protected function setCreatedAt(?\DateTimeInterface $createdAt): static { $this->createdAt = $createdAt; return $this; }
 
     public function getRepayments(): Collection { return $this->repayments; }
 }

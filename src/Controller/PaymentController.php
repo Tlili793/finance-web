@@ -238,14 +238,20 @@ class PaymentController extends AbstractController
     #[Route('/cancel', name: 'cancel', methods: ['GET'])]
     public function cancel(
         Request $request,
-        EntityManagerInterface $em,
-        TransactionRepository $repo
+        EntityManagerInterface $em
     ): Response {
         $transactionId = $request->getSession()->get('paymee_transaction_id');
 
-        if ($transactionId && ($transaction = $repo->find($transactionId))) {
-            $transaction->setStatus('CANCELLED');
-            $em->flush();
+        if ($transactionId) {
+            // getReference() creates a proxy without hitting the database —
+            // we only need the PK to issue the UPDATE, no property reads needed.
+            try {
+                $ref = $em->getReference(Transaction::class, $transactionId);
+                $ref->setStatus('CANCELLED');
+                $em->flush();
+            } catch (\Doctrine\ORM\EntityNotFoundException) {
+                // Stale session ID — the transaction was already removed; ignore.
+            }
         }
 
         $request->getSession()->remove('paymee_token');

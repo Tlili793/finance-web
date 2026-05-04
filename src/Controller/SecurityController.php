@@ -84,7 +84,8 @@ public function signup(Request $request, UserPasswordHasherInterface $userPasswo
     if ($request->isMethod('POST')) {
             // ── Verify hCaptcha ───────────────────────────────────────────────
     $hcaptchaToken = $request->request->get('h-captcha-response', '');
-    if (empty($hcaptchaToken) || !$this->verifyHcaptcha($hcaptchaToken)) {
+    $isDev = $this->getParameter('kernel.environment') === 'dev';
+    if (!$isDev && (empty($hcaptchaToken) || !$this->verifyHcaptcha($hcaptchaToken))) {
         $this->addFlash('danger', 'Please complete the hCaptcha verification.');
         return $this->render('security/signup.html.twig', [
             'last_name'      => $request->request->get('name', ''),
@@ -100,7 +101,7 @@ public function signup(Request $request, UserPasswordHasherInterface $userPasswo
 
         if (!filter_var($last_email, FILTER_VALIDATE_EMAIL)) {
             $error = 'Please enter a valid email address.';
-        } elseif ($userRepository->findOneBy(['email' => $last_email])) {
+        } elseif ($userRepository->findOneBy(['email.address' => $last_email])) {
             $error = 'An account with this email already exists.';
         } elseif (strlen($password) < 8) {
             $error = 'Password must be at least 8 characters.';
@@ -162,7 +163,7 @@ public function signup(Request $request, UserPasswordHasherInterface $userPasswo
     ): Response {
         if ($request->isMethod('POST')) {
             $email = $request->request->get('email');
-            $user  = $userRepository->findOneBy(['email' => $email]);
+            $user  = $userRepository->findOneBy(['email.address' => $email]);
 
             // Always show the same message to avoid email enumeration
             if ($user) {

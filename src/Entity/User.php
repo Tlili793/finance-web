@@ -11,9 +11,14 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Attribute\Ignore;
+use App\Entity\Email;
+use App\Entity\Phone;
+use Symfony\Component\Uid\Uuid;
+use SensitiveParameter;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ORM\Table(name: "`user`")]
+#[ORM\Table(name: 'app_user')]
 #[ORM\HasLifecycleCallbacks]
 #[ApiResource(
     normalizationContext: ["groups" => ["user:read"]],
@@ -22,10 +27,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: 'uuid', unique: true)]
     #[Groups(["user:read"])]
-    private ?int $id = null;
+    private ?Uuid $id = null;
 
     #[ORM\Column(length: 100)]
     #[Groups(["user:read", "user:write"])]
@@ -33,21 +37,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Regex(pattern: '/^[a-zA-Z\s]+$/', message: 'Name can only contain letters and spaces.')]
     private ?string $name = null;
 
-    #[ORM\Column(length: 150, unique: true)]
+    #[ORM\Embedded(class: Email::class, columnPrefix: false)]
     #[Groups(["user:read", "user:write"])]
-    #[Assert\NotBlank]
-    #[Assert\Email]
-    private ?string $email = null;
+    #[Assert\Valid]
+    private Email $email;
 
     #[ORM\Column(length: 255)]
-    #[Groups(["user:write"])]
+    #[Ignore]
     private ?string $passwordHash = null;
 
-    #[ORM\Column(type: Types::INTEGER, options: ["default" => 2])]
+    #[ORM\ManyToOne(targetEntity: Role::class, inversedBy: 'users')]
+    #[ORM\JoinColumn(name: 'role_id', referencedColumnName: 'id', nullable: true)]
     #[Groups(["user:read", "user:write"])]
-    private ?int $roleId = 2;
+    private ?Role $role = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: false)]
     #[Groups(["user:read"])]
     private ?\DateTimeInterface $createdAt = null;
 
@@ -55,14 +59,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(["user:read"])]
     private ?\DateTimeInterface $updatedAt = null;
 
+    #[ORM\ManyToOne(targetEntity: self::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?self $createdBy = null;
+
+    #[ORM\ManyToOne(targetEntity: self::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?self $updatedBy = null;
+
     #[ORM\Column(type: Types::BOOLEAN, options: ["default" => 0])]
     #[Groups(["user:read", "user:write"])]
     private bool $isVerified = false;
 
-    #[ORM\Column(length: 30, nullable: true)]
+    #[ORM\Embedded(class: Phone::class, columnPrefix: false)]
     #[Groups(["user:read", "user:write"])]
-    #[Assert\Regex(pattern: '/^[0-9]{8}$/', message: 'Phone must be exactly 8 digits.')]
-    private ?string $phone = null;
+    #[Assert\Valid]
+    private ?Phone $phone = null;
 
     #[ORM\Column(length: 10, nullable: true)]
     #[Groups(["user:write"])]
@@ -102,6 +114,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function __construct()
     {
+        $this->id = Uuid::v4();
+        $this->createdBy = $this;
+        $this->email = new Email();
+        $this->phone = new Phone();
         $this->budgets = new ArrayCollection();
         $this->complaints = new ArrayCollection();
         $this->insuredAssets = new ArrayCollection();
@@ -125,7 +141,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->updatedAt = new \DateTime();
     }
 
-    public function getId(): ?int
+    public function getId(): ?Uuid
     {
         return $this->id;
     }
@@ -143,54 +159,60 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getEmail(): ?string
     {
-        return $this->email;
+        return $this->email->getAddress();
     }
 
     public function setEmail(string $email): static
     {
-        $this->email = $email;
+        $this->email = new Email($email);
         return $this;
     }
 
     public function getUserIdentifier(): string
     {
-        return (string) $this->email;
+        return (string) $this->email->getAddress();
     }
 
     public function getRoles(): array
     {
         $roles = ["ROLE_USER"];
 
-        if ($this->roleId === 1) {
+        if ($this->role && str_contains(strtoupper($this->role->getRoleName()), 'ADMIN')) {
             $roles[] = "ROLE_ADMIN";
         }
 
         return array_unique($roles);
     }
 
-    public function getRoleId(): ?int
+    public function getRole(): ?Role
     {
-        return $this->roleId;
+        return $this->role;
     }
 
-    public function setRoleId(int $roleId): static
+    public function setRole(?Role $role): static
     {
-        $this->roleId = $roleId;
+        $this->role = $role;
         return $this;
     }
 
-    public function getPassword(): string
+    // For backward compatibility or convenience
+    public function getRoleId(): ?int
+    {
+        return $this->role?->getId();
+    }
+
+    public function getPassword(): ?string
     {
         return $this->passwordHash;
     }
 
-    public function setPassword(string $passwordHash): static
+    public function setPassword(#[SensitiveParameter] string $passwordHash): static
     {
         $this->passwordHash = $passwordHash;
         return $this;
     }
 
-    public function setPasswordHash(string $passwordHash): static
+    public function setPasswordHash(#[SensitiveParameter] string $passwordHash): static
     {
         $this->passwordHash = $passwordHash;
         return $this;
@@ -210,7 +232,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->createdAt;
     }
 
-    public function setCreatedAt(?\DateTimeInterface $createdAt): static
+    protected function setCreatedAt(?\DateTimeInterface $createdAt): static
     {
         $this->createdAt = $createdAt;
         return $this;
@@ -221,9 +243,31 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(?\DateTimeInterface $updatedAt): static
+    protected function setUpdatedAt(?\DateTimeInterface $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+        return $this;
+    }
+
+    public function getCreatedBy(): ?self
+    {
+        return $this->createdBy;
+    }
+
+    protected function setCreatedBy(?self $createdBy): static
+    {
+        $this->createdBy = $createdBy;
+        return $this;
+    }
+
+    public function getUpdatedBy(): ?self
+    {
+        return $this->updatedBy;
+    }
+
+    protected function setUpdatedBy(?self $updatedBy): static
+    {
+        $this->updatedBy = $updatedBy;
         return $this;
     }
 
@@ -240,12 +284,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getPhone(): ?string
     {
-        return $this->phone;
+        return $this->phone?->getNumber();
     }
 
     public function setPhone(?string $phone): static
     {
-        $this->phone = $phone;
+        $this->phone = $phone ? new Phone($phone) : null;
         return $this;
     }
 
@@ -276,10 +320,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->lastLogin;
     }
 
-    public function setLastLogin(?\DateTimeInterface $lastLogin): static
+    protected function setLastLogin(?\DateTimeInterface $lastLogin): static
     {
         $this->lastLogin = $lastLogin;
         return $this;
+    }
+
+    public function recordLogin(): void
+    {
+        $this->lastLogin = new \DateTime();
     }
 
     public function isFaceRegistered(): bool

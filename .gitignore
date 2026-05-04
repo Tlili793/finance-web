@@ -36,3 +36,7 @@ yarn-error.log
 
 # Protect secrets
 .env
+
+###> phpstan/phpstan ###
+phpstan.neon
+###< phpstan/phpstan ###
