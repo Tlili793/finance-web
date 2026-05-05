@@ -9,15 +9,14 @@ class ComplaintTestService extends AbstractEntityTestService
 {
     public function create(
         User $user,
-        string $title = 'Service Delay',
-        string $description = 'I experienced a delay in processing my insurance request.',
-        string $status = 'OPEN'
+        string $subject = 'Service Delay',
+        string $status = 'PENDING'
     ): Complaint {
         $complaint = new Complaint();
         $complaint->setUser($user);
-        $complaint->setTitle($title);
-        $complaint->setDescription($description);
+        $complaint->setSubject($subject);
         $complaint->setStatus($status);
+        $complaint->setComplaintDate(new \DateTime());
         
         $this->persist($complaint);
         return $complaint;

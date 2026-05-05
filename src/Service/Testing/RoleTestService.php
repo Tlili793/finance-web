@@ -6,21 +6,20 @@ use App\Entity\Role;
 
 class RoleTestService extends AbstractEntityTestService
 {
-    public function create(string $name = 'Administrator', string $code = 'ROLE_ADMIN'): Role
+    public function create(string $roleName = 'ROLE_ADMIN'): Role
     {
         $role = new Role();
-        $role->setName($name);
-        $role->setCode($code);
+        $role->setRoleName($roleName);
         
         $this->persist($role);
         return $role;
     }
 
-    public function findOrCreate(string $code = 'ROLE_ADMIN', string $name = 'Administrator'): Role
+    public function findOrCreate(string $roleName = 'ROLE_ADMIN'): Role
     {
-        $role = $this->em->getRepository(Role::class)->findOneBy(['code' => $code]);
+        $role = $this->em->getRepository(Role::class)->findOneBy(['roleName' => $roleName]);
         if (!$role) {
-            $role = $this->create($name, $code);
+            $role = $this->create($roleName);
         }
         return $role;
     }

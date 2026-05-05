@@ -8,6 +8,8 @@ class UserTestService extends AbstractEntityTestService
 {
     /**
      * Creates and persists a standard User for testing.
+     * 
+     * @param string[] $roles
      */
     public function create(
         string $email = 'test@example.com',

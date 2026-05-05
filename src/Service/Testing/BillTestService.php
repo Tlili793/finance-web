@@ -8,19 +8,19 @@ use App\Entity\User;
 class BillTestService extends AbstractEntityTestService
 {
     public function create(
-        User $user,
-        string $title = 'Electricity Bill',
+        \App\Entity\Budget $budget,
+        string $name = 'Electricity Bill',
         string $amount = '85.50',
         string $status = 'UNPAID',
         string $category = 'Utilities'
     ): Bill {
         $bill = new Bill();
-        $bill->setUser($user);
-        $bill->setTitle($title);
+        $bill->setBudget($budget);
+        $bill->setName($name);
         $bill->setAmount($amount);
         $bill->setStatus($status);
         $bill->setCategory($category);
-        $bill->setDueDate(new \DateTime('+15 days'));
+        $bill->setDueDay(15);
         
         $this->persist($bill);
         return $bill;

@@ -9,13 +9,15 @@ class SuggestionTestService extends AbstractEntityTestService
 {
     public function create(
         User $user,
+        \App\Entity\Profile $profile,
         string $title = 'New Feature Idea',
-        string $content = 'It would be great to have a dark mode in the dashboard.'
+        string $script = 'It would be great to have a dark mode in the dashboard.'
     ): Suggestion {
         $suggestion = new Suggestion();
         $suggestion->setUser($user);
+        $suggestion->setProfile($profile);
         $suggestion->setTitle($title);
-        $suggestion->setContent($content);
+        $suggestion->setScript($script);
         
         $this->persist($suggestion);
         return $suggestion;

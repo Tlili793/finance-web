@@ -9,15 +9,11 @@ class ProfileTestService extends AbstractEntityTestService
 {
     public function create(
         User $user,
-        string $firstName = 'John',
-        string $lastName = 'Doe',
-        string $address = '123 Main St'
+        string $description = 'This is a sample profile description with enough characters.'
     ): Profile {
         $profile = new Profile();
         $profile->setUser($user);
-        $profile->setFirstName($firstName);
-        $profile->setLastName($lastName);
-        $profile->setAddress($address);
+        $profile->setDescription($description);
         
         $this->persist($profile);
         return $profile;

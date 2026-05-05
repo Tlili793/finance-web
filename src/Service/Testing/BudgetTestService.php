@@ -9,13 +9,15 @@ class BudgetTestService extends AbstractEntityTestService
 {
     public function create(
         User $user,
+        string $name = 'Monthly Budget',
         string $category = 'Food',
-        string $limitAmount = '1000.00'
+        string $amount = '1000.00'
     ): Budget {
         $budget = new Budget();
         $budget->setUser($user);
+        $budget->setName($name);
         $budget->setCategory($category);
-        $budget->setLimitAmount($limitAmount);
+        $budget->setAmount($amount);
         $budget->setStartDate(new \DateTime('first day of this month'));
         $budget->setEndDate(new \DateTime('last day of this month'));
         

@@ -11,14 +11,14 @@ class LoanTestService extends AbstractEntityTestService
         User $borrower,
         string $amount = '10000.00',
         string $interestRate = '5.50',
-        int $durationMonths = 24,
-        string $status = 'PENDING'
+        string $status = 'active'
     ): Loan {
         $loan = new Loan();
-        $loan->setBorrower($borrower);
+        $loan->setUser($borrower);
         $loan->setAmount($amount);
         $loan->setInterestRate($interestRate);
-        $loan->setDurationMonths($durationMonths);
+        $loan->setStartDate(new \DateTime());
+        $loan->setEndDate(new \DateTime('+2 years'));
         $loan->setStatus($status);
         
         $this->persist($loan);

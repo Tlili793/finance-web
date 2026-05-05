@@ -2,22 +2,19 @@
 
 namespace App\Service\Testing;
 
-use App\Entity\ContractRequest;
 use App\Entity\InsuredContract;
 
 class InsuredContractTestService extends AbstractEntityTestService
 {
     public function create(
-        ContractRequest $request,
-        string $contractNumber = 'POL-2024-0001',
-        string $status = 'ACTIVE'
+        string $assetRef = 'CAR-2024-TEST',
+        string $documentId = 'boldsign-doc-123',
+        \App\Enum\InsuredContractStatus $status = \App\Enum\InsuredContractStatus::NOT_SIGNED
     ): InsuredContract {
         $contract = new InsuredContract();
-        $contract->setRequest($request);
-        $contract->setContractNumber($contractNumber);
+        $contract->setAssetRef($assetRef);
+        $contract->setBoldsignDocumentId($documentId);
         $contract->setStatus($status);
-        $contract->setValidFrom(new \DateTime());
-        $contract->setValidUntil(new \DateTime('+1 year'));
         
         $this->persist($contract);
         return $contract;
