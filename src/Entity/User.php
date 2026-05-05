@@ -112,10 +112,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: ContractRequest::class)]
     private Collection $contractRequests;
    
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Profile::class, cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Profile::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $profiles;
 
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Suggestion::class, cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Suggestion::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $suggestions;
 
     public function __construct()

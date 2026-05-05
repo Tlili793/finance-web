@@ -59,7 +59,8 @@ public function index(
         Request $request,
         EntityManagerInterface $em,
         UserPasswordHasherInterface $hasher,
-        UserRepository $userRepository
+        UserRepository $userRepository,
+        \App\Repository\RoleRepository $roleRepository
     ): Response {
         $name     = trim($request->request->get('name', ''));
         $email    = trim($request->request->get('email', ''));
@@ -87,7 +88,10 @@ public function index(
         $user->setName($name);
         $user->setEmail($email);
         $user->setPhone($phone !== '' ? $phone : null);
-        $user->setRoleId($roleId);
+        $role = $roleRepository->find($roleId);
+        if ($role) {
+            $user->setRole($role);
+        }
         $user->setIsVerified(true); // Admin-created users are pre-verified
         $user->setPassword($hasher->hashPassword($user, $password));
 
@@ -105,7 +109,8 @@ public function index(
         User $user,
         EntityManagerInterface $em,
         UserPasswordHasherInterface $hasher,
-        UserRepository $userRepository
+        UserRepository $userRepository,
+        \App\Repository\RoleRepository $roleRepository
     ): Response {
         if ($request->isMethod('POST')) {
             $name   = trim($request->request->get('name', ''));
@@ -134,7 +139,10 @@ public function index(
             $user->setName($name);
             $user->setEmail($email);
             $user->setPhone($phone !== '' ? $phone : null);
-            $user->setRoleId($roleId);
+            $role = $roleRepository->find($roleId);
+            if ($role) {
+                $user->setRole($role);
+            }
 
             if ($newPwd !== '') {
                 $user->setPassword($hasher->hashPassword($user, $newPwd));
@@ -207,6 +215,9 @@ public function index(
     }
 
     // ─── Validation helper ─────────────────────────────────────────────────────
+    /**
+     * @return string[]
+     */
     private function validateUserInput(string $name, string $email, string $phone, ?string $password): array
     {
         $errors = [];

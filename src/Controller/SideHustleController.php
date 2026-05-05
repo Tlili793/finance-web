@@ -235,28 +235,32 @@ public function generateRules(
     }
 
     #[Route('/results/{id}', name: 'side_hustle_results')]
-    public function results(Profile $profile): Response
+    public function results(int $id, \App\Repository\ProfileRepository $profileRepo): Response
     {
         $user = $this->getUser();
         
-        if (!$user || $profile->getUser()->getId() !== $user->getId()) {
+        // Use JOIN query to fetch everything in one go (Profile + Suggestions + User)
+        $profile = $profileRepo->findWithSuggestions($id);
+        
+        if (!$profile || $profile->getUser()->getId() !== $user->getId()) {
             throw $this->createAccessDeniedException('Access denied');
         }
 
-        $suggestions = $profile->getSuggestions();
-        
         return $this->render('finance/side_hustle/results.html.twig', [
             'profile' => $profile,
-            'suggestions' => $suggestions
+            'suggestions' => $profile->getSuggestions()
         ]);
     }
 
     #[Route('/listen/{id}', name: 'side_hustle_listen', methods: ['POST'])]
-    public function listen(Suggestion $suggestion, EntityManagerInterface $em): Response
+    public function listen(int $id, \App\Repository\SuggestionRepository $suggestionRepo, EntityManagerInterface $em): Response
     {
         $user = $this->getUser();
         
-        if (!$user || $suggestion->getUser()->getId() !== $user->getId()) {
+        // Use JOIN query to avoid lazy loading of User for ownership check
+        $suggestion = $suggestionRepo->findWithDetails($id);
+        
+        if (!$suggestion || $suggestion->getUser()->getId() !== $user->getId()) {
             return $this->json(['error' => 'Access denied'], 403);
         }
 
@@ -266,12 +270,21 @@ public function generateRules(
         return $this->json(['success' => true]);
     }
     
-#[Route('/start/{id}', name: 'side_hustle_start', methods: ['POST'])]
-public function start($id, EntityManagerInterface $em): Response
-{
-    // Simple test - return success without any database operation
-    return $this->json(['success' => true, 'id' => $id]);
-}
+    #[Route('/start/{id}', name: 'side_hustle_start', methods: ['POST'])]
+    public function start(int $id, \App\Repository\SuggestionRepository $suggestionRepo, EntityManagerInterface $em): Response
+    {
+        $user = $this->getUser();
+        
+        // Use JOIN query to avoid lazy loading
+        $suggestion = $suggestionRepo->findWithDetails($id);
+        
+        if (!$suggestion || $suggestion->getUser()->getId() !== $user->getId()) {
+            return $this->json(['error' => 'Access denied'], 403);
+        }
 
-    
+        $suggestion->setStarted(true);
+        $em->flush();
+
+        return $this->json(['success' => true, 'id' => $id]);
+    }
 }

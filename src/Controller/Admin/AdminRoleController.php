@@ -95,7 +95,7 @@ class AdminRoleController extends AbstractController
             return $this->redirectToRoute('admin_role_users');
         }
 
-        $user->setRoleId($roleId);
+        $user->setRole($role);
         $em->flush();
 
         $this->addFlash('success', sprintf('Role "%s" assigned to %s.', $role->getRoleName(), $user->getName()));

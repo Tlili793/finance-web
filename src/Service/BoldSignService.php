@@ -14,8 +14,8 @@ class BoldSignService
     ) {}
 
     public function sendForSignature(
-        int                $userId,
-        int                $requestId,
+        mixed              $userId,
+        mixed              $requestId,
         string             $userName,
         string             $assetReference,
         string             $insurancePackage,

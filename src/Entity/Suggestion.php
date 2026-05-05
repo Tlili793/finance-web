@@ -6,20 +6,27 @@ use App\Repository\SuggestionRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+use App\Trait\BlameableTrait;
+use App\Trait\TimestampableTrait;
+
 #[ORM\Entity(repositoryClass: SuggestionRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Suggestion
 {
+    use BlameableTrait;
+    use TimestampableTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'suggestions')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?User $user = null;
 
     #[ORM\ManyToOne(inversedBy: 'suggestions')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Profile $profile = null;
 
     #[ORM\Column(length: 255)]
@@ -37,12 +44,8 @@ class Suggestion
     #[ORM\Column]
     private ?bool $started = false;
 
-    #[ORM\Column]
-    private ?\DateTimeImmutable $createdAt = null;
-
     public function __construct()
     {
-        $this->createdAt = new \DateTimeImmutable();
     }
 
     // Getters and setters
@@ -61,6 +64,4 @@ class Suggestion
     public function setListened(bool $listened): static { $this->listened = $listened; return $this; }
     public function isStarted(): ?bool { return $this->started; }
     public function setStarted(bool $started): static { $this->started = $started; return $this; }
-    public function getCreatedAt(): ?\DateTimeImmutable { return $this->createdAt; }
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static { $this->createdAt = $createdAt; return $this; }
 }

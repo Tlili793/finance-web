@@ -8,19 +8,11 @@
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-<<<<<<< HEAD
-                    <h4 class="fw-semibold mb-0">Γ£¿ Your Personalized Opportunities</h4>
-                    <p class="text-muted small">Based on your profile</p>
-                </div>
-                <a href="{{ path('side_hustle_index') }}" class="btn btn-outline-secondary btn-sm">
-                    ΓåÉ New Search
-=======
                     <h4 class="fw-semibold mb-0">✨ Your Personalized Opportunities</h4>
                     <p class="text-muted small">Based on your profile</p>
                 </div>
                 <a href="{{ path('side_hustle_index') }}" class="btn btn-outline-secondary btn-sm">
                     ← New Search
->>>>>>> personalfinance
                 </a>
             </div>
         </div>
@@ -90,31 +82,19 @@
                             <div class="row g-3 mb-4">
                                 <div class="col-md-4">
                                     <div class="bg-light rounded-3 p-3 text-center">
-<<<<<<< HEAD
-                                        <div class="text-muted small">≡ƒÆ░ Monthly Earning</div>
-=======
                                         <div class="text-muted small">💰 Monthly Earning</div>
->>>>>>> personalfinance
                                         <div class="fs-5 fw-bold text-success">{{ suggestion.data.earning_potential|default('$500-2000') }}</div>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="bg-light rounded-3 p-3 text-center">
-<<<<<<< HEAD
-                                        <div class="text-muted small">ΓÅ▒∩╕Å Time Investment</div>
-=======
                                         <div class="text-muted small">⏱️ Time Investment</div>
->>>>>>> personalfinance
                                         <div class="fs-5 fw-bold">{{ suggestion.data.time_commitment|default('2-5 hours/week') }}</div>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="bg-light rounded-3 p-3 text-center">
-<<<<<<< HEAD
-                                        <div class="text-muted small">≡ƒôè Difficulty</div>
-=======
                                         <div class="text-muted small">📊 Difficulty</div>
->>>>>>> personalfinance
                                         <div class="fs-5 fw-bold">
                                             <span class="badge {% if suggestion.data.difficulty == 'Easy' %}bg-success{% elseif suggestion.data.difficulty == 'Medium' %}bg-warning{% else %}bg-danger{% endif %}">
                                                 {{ suggestion.data.difficulty|default('Medium') }}
@@ -201,11 +181,7 @@ function markStarted(id) {
     })
     .then(response => {
         if (response.ok) {
-<<<<<<< HEAD
-            alert('≡ƒÄë Congratulations! You\'ve taken the first step toward earning extra income!\n\nCheck your dashboard for more resources.');
-=======
             alert('🎉 Congratulations! You\'ve taken the first step toward earning extra income!\n\nCheck your dashboard for more resources.');
->>>>>>> personalfinance
             location.reload();
         } else {
             alert('Error occurred. Please try again.');
