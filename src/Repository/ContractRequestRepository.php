@@ -8,6 +8,11 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @extends ServiceEntityRepository<ContractRequest>
+ *
+ * @method ContractRequest|null find($id, $lockMode = null, $lockVersion = null)
+ * @method ContractRequest|null findOneBy(array<string, mixed> $criteria, array<string, string> $orderBy = null)
+ * @method ContractRequest[]    findAll()
+ * @method ContractRequest[]    findBy(array<string, mixed> $criteria, array<string, string> $orderBy = null, $limit = null, $offset = null)
  */
 class ContractRequestRepository extends ServiceEntityRepository
 {
@@ -18,6 +23,8 @@ class ContractRequestRepository extends ServiceEntityRepository
 
     /**
      * Search, filter and sort contract requests for a given user.
+     *
+     * @return array<ContractRequest>
      */
     public function search(
         UserInterface $user,

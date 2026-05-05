@@ -76,6 +76,7 @@ class PaymentController extends AbstractController
     #[Route('/test-email', name: 'test_email', methods: ['GET'])]
     public function testEmail(): Response
     {
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
         $userEmail = $user->getEmail();
 
@@ -105,6 +106,7 @@ class PaymentController extends AbstractController
         if ($request->isMethod('POST')) {
             $amount = (float)$request->request->get('amount');
             $note   = $request->request->get('note', 'Payment');
+            /** @var \App\Entity\User $user */
             $user   = $this->getUser();
 
             // Server-side guard: amount must be positive
@@ -114,7 +116,7 @@ class PaymentController extends AbstractController
             }
 
             $nameParts = explode(' ', trim($user->getName() ?? ''), 2);
-            $firstName = $nameParts[0] ?? 'User';
+            $firstName = $nameParts[0] ?: 'User';
             $lastName  = $nameParts[1] ?? $firstName;
 
             // Normalize phone to Paymee format: +216XXXXXXXX

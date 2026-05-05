@@ -130,13 +130,13 @@ async def insurance_chat(request: InsuranceChatRequest):
 
 
 @app.post("/insurance/reset/{user_id}")
-async def reset_insurance_memory(user_id: int):
+async def reset_insurance_memory(user_id: str):
     """Clear the conversation memory for a specific user."""
     reset_user_memory(user_id)
     return {"status": "memory cleared", "user_id": user_id}
 
 
 @app.get("/insurance/history/{user_id}")
-async def get_insurance_history(user_id: int):
+async def get_insurance_history(user_id: str):
     """Return the current conversation history for a user (debug/admin use)."""
     return {"user_id": user_id, "history": get_user_history(user_id)}

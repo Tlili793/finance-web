@@ -131,7 +131,11 @@ class InsuranceController extends AbstractController
     {
         $subject = $request->request->get('subject');
         $message = $request->request->get('message');
-        $user    = $this->getUser();
+        $user = $this->getUser();
+        if (!$user instanceof \App\Entity\User) {
+            $this->addFlash('error', 'Please login to send a support message.');
+            return $this->redirectToRoute('app_login');
+        }
 
         $mailer->sendSupportEmail($user, $subject, $message);
 
@@ -144,12 +148,19 @@ class InsuranceController extends AbstractController
     #[Route('/assets', name: 'assets', methods: ['GET'])]
     public function assets(Request $request, InsuredAssetRepository $repo): Response
     {
+        $user = $this->getUser();
+        if (!$user instanceof \App\Entity\User) {
+            return $this->redirectToRoute('app_login');
+        }
+
         $q       = trim((string) $request->query->get('q', ''));
         $type    = (string) $request->query->get('type', '');
         $orderBy = (string) $request->query->get('order', 'a.createdAt');
         $dir     = strtoupper((string) $request->query->get('dir', 'DESC')) === 'ASC' ? 'ASC' : 'DESC';
 
         $assets = $repo->search($this->getUser(), $q ?: null, $type ?: null, $orderBy, $dir);
+        // Debugging: uncomment to see count in error page
+        // throw new \Exception("Found " . count($assets) . " assets for user " . $this->getUser()->getUserIdentifier());
 
         return $this->render('insurance/assets/index.html.twig', [
             'assets'  => $assets,
@@ -165,7 +176,9 @@ class InsuranceController extends AbstractController
     {
         if ($request->isMethod('POST')) {
             $asset = new InsuredAsset();
-            $asset->setUser($this->getUser());
+            /** @var \App\Entity\User $user */
+            $user = $this->getUser();
+            $asset->setUser($user);
             $asset->setReference($request->request->get('reference'));
             $asset->setType($request->request->get('type'));
             $asset->setDescription($request->request->get('description'));
@@ -228,6 +241,9 @@ class InsuranceController extends AbstractController
     #[Route('/packages', name: 'packages', methods: ['GET'])]
     public function packages(Request $request, InsurancePackageRepository $repo): Response
     {
+        $user = $this->getUser();
+        if (!$user instanceof \App\Entity\User) return $this->redirectToRoute('app_login');
+
         $q         = trim((string) $request->query->get('q', ''));
         $assetType = (string) $request->query->get('asset_type', '');
         $orderBy   = (string) $request->query->get('order', 'p.name');
@@ -249,6 +265,9 @@ class InsuranceController extends AbstractController
     #[Route('/requests', name: 'requests', methods: ['GET'])]
     public function requests(Request $request, ContractRequestRepository $repo): Response
     {
+        $user = $this->getUser();
+        if (!$user) return $this->redirectToRoute('app_login');
+
         $q       = trim((string) $request->query->get('q', ''));
         $status  = (string) $request->query->get('status', '');
         $orderBy = (string) $request->query->get('order', 'r.createdAt');
@@ -288,7 +307,9 @@ class InsuranceController extends AbstractController
             $premium = round((float)$package->getBasePrice() * (float)$package->getRiskMultiplier(), 2);
 
             $contractRequest = new ContractRequest();
-            $contractRequest->setUser($this->getUser());
+            /** @var \App\Entity\User $user */
+            $user = $this->getUser();
+            $contractRequest->setUser($user);
             $contractRequest->setAsset($asset);
             $contractRequest->setPackage($package);
             $contractRequest->setCalculatedPremium((string)$premium);

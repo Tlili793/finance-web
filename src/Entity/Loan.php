@@ -20,6 +20,7 @@ class Loan
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    /** @phpstan-ignore-next-line */
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'loans')]
@@ -40,11 +41,12 @@ class Loan
     private DateRange $dateRange;
 
     #[ORM\Column(length: 20, options: ['default' => 'active'])]
-    private ?string $status = 'active';
+    private string $status = 'active';
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: false)]
     private ?\DateTimeInterface $createdAt = null;
 
+    /** @var Collection<int, Repayment> */
     #[ORM\OneToMany(mappedBy: 'loan', targetEntity: Repayment::class)]
     private Collection $repayments;
 
@@ -84,5 +86,6 @@ class Loan
     public function getCreatedAt(): ?\DateTimeInterface { return $this->createdAt; }
     protected function setCreatedAt(?\DateTimeInterface $createdAt): static { $this->createdAt = $createdAt; return $this; }
 
+    /** @return Collection<int, Repayment> */
     public function getRepayments(): Collection { return $this->repayments; }
 }

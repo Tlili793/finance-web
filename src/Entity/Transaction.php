@@ -24,6 +24,7 @@ class Transaction
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    /** @phpstan-ignore-next-line */
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'transactions')]
@@ -39,7 +40,7 @@ class Transaction
     private ?string $type = null;
 
     #[ORM\Column(length: 20, options: ['default' => 'PENDING'])]
-    private ?string $status = 'PENDING';
+    private string $status = 'PENDING';
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;

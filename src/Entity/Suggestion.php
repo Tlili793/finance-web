@@ -19,6 +19,7 @@ class Suggestion
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    /** @phpstan-ignore-next-line */
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'suggestions')]
@@ -32,6 +33,7 @@ class Suggestion
     #[ORM\Column(length: 255)]
     private ?string $title = null;
 
+    /** @var array<string, mixed>|null */
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $data = null;
 
@@ -39,10 +41,10 @@ class Suggestion
     private ?string $script = null;
 
     #[ORM\Column]
-    private ?bool $listened = false;
+    private bool $listened = false;
 
     #[ORM\Column]
-    private ?bool $started = false;
+    private bool $started = false;
 
     public function __construct()
     {
@@ -56,7 +58,11 @@ class Suggestion
     public function setProfile(?Profile $profile): static { $this->profile = $profile; return $this; }
     public function getTitle(): ?string { return $this->title; }
     public function setTitle(string $title): static { $this->title = $title; return $this; }
+    
+    /** @return array<string, mixed>|null */
     public function getData(): ?array { return $this->data; }
+
+    /** @param array<string, mixed>|null $data */
     public function setData(?array $data): static { $this->data = $data; return $this; }
     public function getScript(): ?string { return $this->script; }
     public function setScript(string $script): static { $this->script = $script; return $this; }

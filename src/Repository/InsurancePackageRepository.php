@@ -7,6 +7,11 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<InsurancePackage>
+ *
+ * @method InsurancePackage|null find($id, $lockMode = null, $lockVersion = null)
+ * @method InsurancePackage|null findOneBy(array<string, mixed> $criteria, array<string, string> $orderBy = null)
+ * @method InsurancePackage[]    findAll()
+ * @method InsurancePackage[]    findBy(array<string, mixed> $criteria, array<string, string> $orderBy = null, $limit = null, $offset = null)
  */
 class InsurancePackageRepository extends ServiceEntityRepository
 {
@@ -17,6 +22,7 @@ class InsurancePackageRepository extends ServiceEntityRepository
 
     /**
      * Search, filter and sort active packages.
+     * @return array<InsurancePackage>
      */
     public function search(
         ?string $query,

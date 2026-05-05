@@ -21,10 +21,10 @@ Be concise, professional, and empathetic. Ask clarifying questions when needed.
 If a user asks something outside insurance, politely redirect them."""
 
 # Per-user in-memory conversation store  (user_id → [{role, content}, ...])
-user_memories: Dict[int, List[dict]] = {}
+user_memories: Dict[str, List[dict]] = {}
 
 async def get_insurance_reply(
-    user_id: int,
+    user_id: str,
     message: str,
     context: UserContext,
     history: List[Message] = None,
@@ -72,11 +72,11 @@ async def get_insurance_reply(
     return response.reply, len(response.history)
 
 
-def reset_user_memory(user_id: int) -> None:
+def reset_user_memory(user_id: str) -> None:
     """Clear the conversation memory for the given user."""
     user_memories.pop(user_id, None)
 
 
-def get_user_history(user_id: int) -> List[dict]:
+def get_user_history(user_id: str) -> List[dict]:
     """Return the stored conversation history for the given user."""
     return user_memories.get(user_id, [])

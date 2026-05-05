@@ -37,7 +37,9 @@ class ContractController extends AbstractController
             $package = $contractRequest->getPackage();
 
             $documentId = $boldSign->sendForSignature(
-                userName:         $user->getFullName(),
+                userId:           $user->getId(),
+                requestId:        $contractRequest->getId(),
+                userName:         $user->getName(),
                 assetReference:   $asset->getReference(),
                 insurancePackage: $package->getName(),
                 approvedValue:    $contractRequest->getCalculatedPremium() . ' TND',

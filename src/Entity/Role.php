@@ -18,6 +18,7 @@ class Role
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    /** @phpstan-ignore-next-line */
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
@@ -26,6 +27,9 @@ class Role
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $permissions = null;
 
+    /**
+     * @var Collection<int, User>
+     */
     #[ORM\OneToMany(mappedBy: 'role', targetEntity: User::class)]
     private Collection $users;
 

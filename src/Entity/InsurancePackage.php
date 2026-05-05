@@ -19,6 +19,7 @@ class InsurancePackage
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    /** @phpstan-ignore-next-line */
     private ?int $id = null;
 
     #[ORM\Column(length: 150)]
@@ -41,7 +42,7 @@ class InsurancePackage
     private ?string $basePrice = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 5, scale: 2, options: ['default' => '1.00'])]
-    private ?string $riskMultiplier = '1.00';
+    private string $riskMultiplier = '1.00';
 
     #[ORM\Column(type: Types::INTEGER)]
     #[Assert\NotBlank]

@@ -35,7 +35,7 @@ final class UserController extends AbstractController
             $parsed     = $this->aiSearchService->parseSearchQuery($q);
             $users      = $userRepository->findByAiFilters($parsed['filters']);
             $info       = $parsed['explanation'];
-            $aiSuccess  = $parsed['success'] ?? true;
+            $aiSuccess  = $parsed['success'];
         } elseif ($q) {
             $users = $userRepository->searchByNameOrEmail($q);
         } else {
@@ -159,6 +159,8 @@ final class UserController extends AbstractController
     #[Route('/{id}/reset-password', name: 'admin_user_reset_password', methods: ['POST'])]
     public function resetPassword(Request $request, User $user, EntityManagerInterface $entityManager, UserPasswordHasherInterface $hasher): Response
     {
+        /** @var \App\Entity\User $currentUser */
+        $currentUser = $this->getUser();
         if ($this->isCsrfTokenValid('reset-pwd-' . $user->getId(), $request->request->get('_token'))) {
             $newPassword = $request->request->get('new_password');
             if ($newPassword) {

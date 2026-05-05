@@ -61,7 +61,7 @@ class InsuranceMailerService
     /**
      * Send a support message from a user to the admin.
      */
-    public function sendSupportEmail($user, string $subject, string $message): void
+    public function sendSupportEmail(\App\Entity\User $user, string $subject, string $message): void
     {
         $this->sendEmail(
             'mohamedwassim.tlili@gmail.com', // Admin support email
@@ -75,6 +75,9 @@ class InsuranceMailerService
         );
     }
 
+    /**
+     * @param array<string, mixed> $context
+     */
     private function sendEmail(string $to, string $subject, string $template, array $context): void
     {
         try {

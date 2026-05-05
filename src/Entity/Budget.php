@@ -18,6 +18,7 @@ class Budget
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    /** @phpstan-ignore-next-line */
     private ?int $id = null;
 
     #[ORM\Column(length: 150)]
@@ -43,7 +44,7 @@ private ?string $amount = null;
     private ?string $category = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 15, scale: 2, options: ['default' => '0.00'])]
-    private ?string $spentAmount = '0.00';
+    private string $spentAmount = '0.00';
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: false)]
     private ?\DateTimeInterface $createdAt = null;
@@ -59,9 +60,11 @@ private ?string $amount = null;
     #[ORM\JoinColumn(nullable: true)]
     private ?User $updatedBy = null;
 
+    /** @var Collection<int, Bill> */
     #[ORM\OneToMany(mappedBy: 'budget', targetEntity: Bill::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $bills;
 
+    /** @var Collection<int, Expense> */
     #[ORM\OneToMany(mappedBy: 'budget', targetEntity: Expense::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $expenses;
 
@@ -111,7 +114,9 @@ private ?string $amount = null;
     public function getCreatedAt(): ?\DateTimeInterface { return $this->createdAt; }
     protected function setCreatedAt(?\DateTimeInterface $createdAt): static { $this->createdAt = $createdAt; return $this; }
 
+    /** @return Collection<int, Bill> */
     public function getBills(): Collection { return $this->bills; }
+    /** @return Collection<int, Expense> */
     public function getExpenses(): Collection { return $this->expenses; }
     public function getUpdatedAt(): ?\DateTimeInterface { return $this->updatedAt; }
     protected function setUpdatedAt(?\DateTimeInterface $updatedAt): static { $this->updatedAt = $updatedAt; return $this; }

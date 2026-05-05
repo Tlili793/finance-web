@@ -14,7 +14,6 @@ class LoginSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private EntityManagerInterface $em,
-        private RouterInterface $router,
     ) {}
 
     public static function getSubscribedEvents(): array

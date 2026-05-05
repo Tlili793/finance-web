@@ -7,6 +7,11 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<Repayment>
+ *
+ * @method Repayment|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Repayment|null findOneBy(array<string, mixed> $criteria, array<string, string> $orderBy = null)
+ * @method Repayment[]    findAll()
+ * @method Repayment[]    findBy(array<string, mixed> $criteria, array<string, string> $orderBy = null, $limit = null, $offset = null)
  */
 class RepaymentRepository extends ServiceEntityRepository
 {

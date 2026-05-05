@@ -163,10 +163,21 @@ class AdminInsuranceController extends AbstractController
     // ─── PACKAGES ─────────────────────────────────────────────────────────────
 
     #[Route('/packages', name: 'packages', methods: ['GET'])]
-    public function packages(InsurancePackageRepository $repo): Response
+    public function packages(Request $request, InsurancePackageRepository $repo): Response
     {
+        $q         = trim((string) $request->query->get('q', ''));
+        $assetType = (string) $request->query->get('asset_type', '');
+        $orderBy   = (string) $request->query->get('order', 'p.name');
+        $dir       = strtoupper((string) $request->query->get('dir', 'ASC')) === 'ASC' ? 'ASC' : 'DESC';
+
+        $packages = $repo->search($q ?: null, $assetType ?: null, $orderBy, $dir);
+
         return $this->render('admin/insurance/packages/index.html.twig', [
-            'packages' => $repo->findAll(),
+            'packages'  => $packages,
+            'q'         => $q,
+            'assetType' => $assetType,
+            'orderBy'   => $orderBy,
+            'dir'       => $dir,
         ]);
     }
 

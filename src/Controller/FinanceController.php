@@ -98,6 +98,9 @@ public function budgets(BudgetRepository $repo): Response
 
     /**
      * Calculate predictive spending forecast for the current month
+     * 
+     * @param Budget[] $budgets
+     * @return array<string, float|int>
      */
     private function calculateForecast(array $budgets): array
     {
@@ -138,7 +141,9 @@ public function budgets(BudgetRepository $repo): Response
     {
         if ($request->isMethod('POST')) {
             $budget = new Budget();
-            $budget->setUser($this->getUser());
+            /** @var \App\Entity\User $user */
+            $user = $this->getUser();
+            $budget->setUser($user);
             $budget->setName($request->request->get('name'));
             $budget->setAmount($request->request->get('amount'));
             $budget->setStartDate(new \DateTime($request->request->get('start_date')));
@@ -452,7 +457,7 @@ public function bills(BudgetRepository $budgetRepo): Response
     // Build events for FullCalendar
     $events = [];
     foreach ($bills as $bill) {
-        $day = str_pad($bill->getDueDay(), 2, '0', STR_PAD_LEFT);
+        $day = str_pad((string)$bill->getDueDay(), 2, '0', STR_PAD_LEFT);
         $month = (new \DateTime())->format('Y-m');
         $events[] = [
             'id'              => $bill->getId(),

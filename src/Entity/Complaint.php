@@ -19,6 +19,7 @@ class Complaint
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    /** @phpstan-ignore-next-line */
     private ?int $id = null;
 
     #[ORM\Column(type: Types::TEXT)]
@@ -26,8 +27,8 @@ class Complaint
     #[NoProfanity]
     private ?string $subject = null;
 
-    #[ORM\Column(length: 20, options: ['default' => 'pending'])]
-    private ?string $status = 'pending';
+    #[ORM\Column(length: 20)]
+    private string $status = 'PENDING';
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     #[Assert\NotNull]

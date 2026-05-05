@@ -8,6 +8,11 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<Suggestion>
+ *
+ * @method Suggestion|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Suggestion|null findOneBy(array<string, mixed> $criteria, array<string, string> $orderBy = null)
+ * @method Suggestion[]    findAll()
+ * @method Suggestion[]    findBy(array<string, mixed> $criteria, array<string, string> $orderBy = null, $limit = null, $offset = null)
  */
 class SuggestionRepository extends ServiceEntityRepository
 {

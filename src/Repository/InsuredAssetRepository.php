@@ -8,6 +8,11 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @extends ServiceEntityRepository<InsuredAsset>
+ *
+ * @method InsuredAsset|null find($id, $lockMode = null, $lockVersion = null)
+ * @method InsuredAsset|null findOneBy(array<string, mixed> $criteria, array<string, string> $orderBy = null)
+ * @method InsuredAsset[]    findAll()
+ * @method InsuredAsset[]    findBy(array<string, mixed> $criteria, array<string, string> $orderBy = null, $limit = null, $offset = null)
  */
 class InsuredAssetRepository extends ServiceEntityRepository
 {
@@ -18,35 +23,24 @@ class InsuredAssetRepository extends ServiceEntityRepository
 
     /**
      * Search, filter and sort assets for a given user.
+     *
+     * @return array<InsuredAsset>
      */
     public function search(
         UserInterface $user,
         ?string $query,
         ?string $type,
-        string $orderBy = 'a.createdAt',
+        string $orderBy = 'createdAt',
         string $dir = 'DESC'
     ): array {
-        $allowedOrder = ['a.createdAt', 'a.reference', 'a.brand', 'a.declaredValue', 'a.manufactureDate'];
-        if (!in_array($orderBy, $allowedOrder, true)) {
-            $orderBy = 'a.createdAt';
-        }
-        $dir = strtoupper($dir) === 'ASC' ? 'ASC' : 'DESC';
-
-        $qb = $this->createQueryBuilder('a')
-            ->where('a.user = :user')
-            ->setParameter('user', $user)
-            ->orderBy($orderBy, $dir);
-
-        if ($query !== null && $query !== '') {
-            $qb->andWhere('a.reference LIKE :q OR a.brand LIKE :q OR a.description LIKE :q OR a.location LIKE :q')
-               ->setParameter('q', '%' . $query . '%');
+        $criteria = ['user' => $user];
+        if ($type) {
+            $criteria['type'] = $type;
         }
 
-        if ($type !== null && $type !== '') {
-            $qb->andWhere('a.type = :type')
-               ->setParameter('type', $type);
-        }
+        // Strip 'a.' prefix if present in orderBy for findBy
+        $orderByField = str_replace('a.', '', $orderBy);
 
-        return $qb->getQuery()->getResult();
+        return $this->findBy($criteria, [$orderByField => $dir]);
     }
 }

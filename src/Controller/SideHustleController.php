@@ -34,7 +34,7 @@ class SideHustleController extends AbstractController
     ): Response {
         $user = $this->getUser();
         
-        if (!$user) {
+        if (!$user instanceof \App\Entity\User) {
             $this->addFlash('error', 'Please login first');
             return $this->redirectToRoute('app_login');
         }
@@ -59,7 +59,7 @@ class SideHustleController extends AbstractController
     ): Response {
         $user = $this->getUser();
         
-        if (!$user) {
+        if (!$user instanceof \App\Entity\User) {
             $this->addFlash('error', 'Please login first');
             return $this->redirectToRoute('app_login');
         }
@@ -101,7 +101,7 @@ public function generateRules(
 ): Response {
     $user = $this->getUser();
     
-    if (!$user) {
+    if (!$user instanceof \App\Entity\User) {
         $this->addFlash('error', 'Please login first');
         return $this->redirectToRoute('app_login');
     }
@@ -180,7 +180,7 @@ public function generateRules(
 
     private function processGeneration(
         string $description,
-        $user,
+        \App\Entity\User $user,
         HuggingFaceService $huggingface,
         EntityManagerInterface $em,
         ValidatorInterface $validator,
@@ -237,6 +237,7 @@ public function generateRules(
     #[Route('/results/{id}', name: 'side_hustle_results')]
     public function results(int $id, \App\Repository\ProfileRepository $profileRepo): Response
     {
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
         
         // Use JOIN query to fetch everything in one go (Profile + Suggestions + User)
@@ -255,6 +256,7 @@ public function generateRules(
     #[Route('/listen/{id}', name: 'side_hustle_listen', methods: ['POST'])]
     public function listen(int $id, \App\Repository\SuggestionRepository $suggestionRepo, EntityManagerInterface $em): Response
     {
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
         
         // Use JOIN query to avoid lazy loading of User for ownership check
@@ -273,6 +275,7 @@ public function generateRules(
     #[Route('/start/{id}', name: 'side_hustle_start', methods: ['POST'])]
     public function start(int $id, \App\Repository\SuggestionRepository $suggestionRepo, EntityManagerInterface $em): Response
     {
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
         
         // Use JOIN query to avoid lazy loading

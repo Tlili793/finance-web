@@ -30,12 +30,12 @@ class UserContext(BaseModel):
     requests: list[Dict[str, Any]] = []
 
 class InsuranceChatRequest(BaseModel):
-    user_id: int
+    user_id: str
     message: str
     context: UserContext = UserContext()   # ← replaces user_token
     history: Optional[List[Message]] = []
 
 class InsuranceChatResponse(BaseModel):
     reply: str
-    user_id: int
+    user_id: str
     history_length: int

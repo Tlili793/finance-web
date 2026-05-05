@@ -27,7 +27,9 @@ class ComplaintController extends AbstractController
     {
         if ($request->isMethod('POST')) {
             $complaint = new Complaint();
-            $complaint->setUser($this->getUser());
+            /** @var \App\Entity\User $user */
+            $user = $this->getUser();
+            $complaint->setUser($user);
             $complaint->setSubject((string) $request->request->get('subject'));
             $complaint->setComplaintDate(new \DateTime());
             $complaint->setStatus('pending');

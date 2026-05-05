@@ -16,9 +16,9 @@ class Money
     #[Groups(["transaction:read", "transaction:write"])]
     private ?string $amount = null;
 
-    #[ORM\Column(length: 10, options: ['default' => 'TND'])]
+    #[ORM\Column(length: 3)]
     #[Groups(["transaction:read", "transaction:write"])]
-    private ?string $currency = 'TND';
+    private string $currency = 'TND';
 
     public function __construct(?string $amount = null, ?string $currency = 'TND')
     {

@@ -162,7 +162,9 @@ public function index(
     {
         if ($this->isCsrfTokenValid('delete-user-' . $user->getId(), $request->request->get('_token'))) {
             // Prevent self-deletion
-            if ($user === $this->getUser()) {
+            /** @var \App\Entity\User $currentUser */
+            $currentUser = $this->getUser();
+            if ($user === $currentUser) {
                 $this->addFlash('danger', 'You cannot delete your own account.');
                 return $this->redirectToRoute('admin_user_index');
             }
@@ -179,7 +181,9 @@ public function index(
     public function toggleActive(Request $request, User $user, EntityManagerInterface $em): Response
     {
         if ($this->isCsrfTokenValid('toggle-' . $user->getId(), $request->request->get('_token'))) {
-            if ($user === $this->getUser()) {
+            /** @var \App\Entity\User $currentUser */
+            $currentUser = $this->getUser();
+            if ($user === $currentUser) {
                 $this->addFlash('danger', 'You cannot deactivate your own account.');
                 return $this->redirectToRoute('admin_user_index');
             }

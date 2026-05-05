@@ -27,11 +27,11 @@ class BlameableListener
         }
 
         if (method_exists($entity, 'setCreatedBy') && $entity->getCreatedBy() === null) {
-            $entity->setCreatedBy($user);
+            $this->invokeProtectedMethod($entity, 'setCreatedBy', $user);
         }
 
         if (method_exists($entity, 'setUpdatedBy')) {
-            $entity->setUpdatedBy($user);
+            $this->invokeProtectedMethod($entity, 'setUpdatedBy', $user);
         }
     }
 
@@ -45,7 +45,18 @@ class BlameableListener
         }
 
         if (method_exists($entity, 'setUpdatedBy')) {
-            $entity->setUpdatedBy($user);
+            $this->invokeProtectedMethod($entity, 'setUpdatedBy', $user);
+        }
+    }
+
+    private function invokeProtectedMethod(object $object, string $method, mixed $value): void
+    {
+        try {
+            $reflection = new \ReflectionMethod($object, $method);
+            $reflection->setAccessible(true);
+            $reflection->invoke($object, $value);
+        } catch (\ReflectionException $e) {
+            // Method doesn't exist or other reflection error
         }
     }
 }

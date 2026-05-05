@@ -70,6 +70,9 @@ class BoldSignService
         return $data['documentId'] ?? $body;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function buildMultipartBody(
         string $pdfPath,
         string $userName,

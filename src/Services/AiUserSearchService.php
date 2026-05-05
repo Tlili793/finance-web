@@ -23,9 +23,10 @@ class AiUserSearchService
 
     /**
      * Send natural language query to Groq and get back structured filters.
-     * Returns ['filters' => [...], 'explanation' => '...']
+     * 
+     * @return array{filters: array<string, mixed>, explanation: string, success: bool}
      */
-   public function parseSearchQuery(string $naturalQuery): array
+    public function parseSearchQuery(string $naturalQuery): array
 {
     $today = (new \DateTime())->format('Y-m-d');
 
@@ -135,6 +136,8 @@ PROMPT;
 
     /**
      * Fallback to basic keyword search if AI fails.
+     * 
+     * @return array{filters: array<string, mixed>, explanation: string, success: bool}
      */
     private function fallback(string $query): array
     {

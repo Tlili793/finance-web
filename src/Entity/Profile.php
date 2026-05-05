@@ -22,6 +22,7 @@ class Profile
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    /** @phpstan-ignore-next-line */
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'profiles')]
@@ -33,9 +34,10 @@ class Profile
     #[Assert\Length(min: 10, max: 2000)]
     private ?string $description = null;
 
-    #[ORM\Column(length: 50)]
-    private ?string $status = 'active';
+    #[ORM\Column(length: 20)]
+    private string $status = 'active';
 
+    /** @var Collection<int, Suggestion> */
     #[ORM\OneToMany(mappedBy: 'profile', targetEntity: Suggestion::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $suggestions;
 
@@ -52,6 +54,7 @@ class Profile
     public function setDescription(string $description): static { $this->description = $description; return $this; }
     public function getStatus(): ?string { return $this->status; }
     public function setStatus(string $status): static { $this->status = $status; return $this; }
+    /** @return Collection<int, Suggestion> */
     public function getSuggestions(): Collection { return $this->suggestions; }
     public function addSuggestion(Suggestion $suggestion): static { if (!$this->suggestions->contains($suggestion)) { $this->suggestions->add($suggestion); $suggestion->setProfile($this); } return $this; }
     public function removeSuggestion(Suggestion $suggestion): static { $this->suggestions->removeElement($suggestion); return $this; }

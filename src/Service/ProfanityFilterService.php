@@ -8,6 +8,9 @@ class ProfanityFilterService
      * An internal customizable dictionary of bad words.
      * In a bigger app, this could be loaded from an entity or YAML config.
      */
+    /**
+     * @var array<string>
+     */
     private array $badWords = [
         'fuck', 'shit', 'bitch', 'asshole', 'cunt', 'dick', 'bastard', 'whore',
         'slut', 'faggot', 'nigger', 'nigga', 'pussy', 'motherfucker', 'cock', 'twat'
@@ -15,6 +18,9 @@ class ProfanityFilterService
 
     /**
      * A map for l33t-speak character substitution (making it smarter).
+     */
+    /**
+     * @var array<string|int, string>
      */
     private array $leetMap = [
         '@' => 'a', '4' => 'a',
@@ -42,6 +48,9 @@ class ProfanityFilterService
     /**
      * Detects all bad words mathematically and logically.
      * Retruns an array of detected offenses.
+     */
+    /**
+     * @return array<string>
      */
     public function getDetectedBadWords(string $text): array
     {

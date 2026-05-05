@@ -8,6 +8,11 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<User>
+ *
+ * @method User|null find($id, $lockMode = null, $lockVersion = null)
+ * @method User|null findOneBy(array<string, mixed> $criteria, array<string, string> $orderBy = null)
+ * @method User[]    findAll()
+ * @method User[]    findBy(array<string, mixed> $criteria, array<string, string> $orderBy = null, $limit = null, $offset = null)
  */
 class UserRepository extends ServiceEntityRepository
 {
@@ -58,6 +63,8 @@ class UserRepository extends ServiceEntityRepository
 
     /**
      * Count verified vs unverified — for admin dashboard stats.
+     * 
+     * @return array<int, array{isVerified: bool, total: int}>
      */
     public function countByVerified(): array
     {
@@ -87,7 +94,7 @@ class UserRepository extends ServiceEntityRepository
     /**
      * AI-powered search — applies structured filters returned by Groq.
      *
-     * @param array $filters
+     * @param array<string, mixed> $filters
      * @return User[]
      */
     public function findByAiFilters(array $filters): array

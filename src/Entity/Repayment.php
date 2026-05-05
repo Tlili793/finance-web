@@ -15,6 +15,7 @@ class Repayment
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    /** @phpstan-ignore-next-line */
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: Loan::class, inversedBy: 'repayments')]
@@ -33,8 +34,8 @@ class Repayment
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $paymentType = null;
 
-    #[ORM\Column(length: 20, options: ['default' => 'pending'])]
-    private ?string $status = 'pending';
+    #[ORM\Column(length: 20)]
+    private string $status = 'PENDING';
 
     #[ORM\Column(type: Types::DECIMAL, precision: 15, scale: 2, nullable: true)]
     private ?string $monthlyPayment = null;

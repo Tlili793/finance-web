@@ -14,6 +14,9 @@ class HuggingFaceService
     ) {
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     public function generateSideHustles(string $userDescription): array
     {
         $cacheKey = 'side_hustle_' . md5($userDescription);
@@ -82,6 +85,9 @@ Return ONLY valid JSON array. Each item must have: title, why_fits, earning_pote
 Example: [{\"title\":\"Freelance Writing\",\"why_fits\":\"You have great communication skills\",\"earning_potential\":\"$500-2000/month\",\"difficulty\":\"Easy\",\"time_commitment\":\"2-5 hours/week\",\"deep_explain\":\"Step by step guide to start freelance writing...\"}]";
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     private function getDefaultSuggestions(string $userDescription): array
     {
         // This is fake data - we need REAL API to work!

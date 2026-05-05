@@ -94,27 +94,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::BOOLEAN, options: ["default" => 1])]
     private bool $isActive = true;
 
+    /** @var Collection<int, Budget> */
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Budget::class)]
     private Collection $budgets;
 
+    /** @var Collection<int, Complaint> */
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Complaint::class)]
     private Collection $complaints;
 
+    /** @var Collection<int, InsuredAsset> */
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: InsuredAsset::class)]
     private Collection $insuredAssets;
 
+    /** @var Collection<int, Loan> */
     #[ORM\OneToMany(mappedBy: 'borrower', targetEntity: Loan::class)]
     private Collection $loans;
 
+    /** @var Collection<int, Transaction> */
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Transaction::class)]
     private Collection $transactions;
 
+    /** @var Collection<int, ContractRequest> */
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: ContractRequest::class)]
     private Collection $contractRequests;
    
+    /** @var Collection<int, Profile> */
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Profile::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $profiles;
 
+    /** @var Collection<int, Suggestion> */
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Suggestion::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $suggestions;
 
@@ -360,6 +368,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    /** @return Collection<int, Profile> */
     public function getProfiles(): Collection
     {
         return $this->profiles;
@@ -380,6 +389,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    /** @return Collection<int, Suggestion> */
     public function getSuggestions(): Collection
     {
         return $this->suggestions;
@@ -400,10 +410,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    /** @return Collection<int, Budget> */
     public function getBudgets(): Collection { return $this->budgets; }
+    /** @return Collection<int, Complaint> */
     public function getComplaints(): Collection { return $this->complaints; }
+    /** @return Collection<int, InsuredAsset> */
     public function getInsuredAssets(): Collection { return $this->insuredAssets; }
+    /** @return Collection<int, Loan> */
     public function getLoans(): Collection { return $this->loans; }
+    /** @return Collection<int, Transaction> */
     public function getTransactions(): Collection { return $this->transactions; }
+    /** @return Collection<int, ContractRequest> */
     public function getContractRequests(): Collection { return $this->contractRequests; }
 }

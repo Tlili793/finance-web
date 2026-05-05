@@ -22,7 +22,7 @@ final class DashboardController extends AbstractController
     {
         $user = $this->getUser();
 
-        if (!$user) {
+        if (!$user instanceof \App\Entity\User) {
             return $this->render('dashboard/index.html.twig', [
                 'requestCount' => 0,
                 'assetCount'   => 0,

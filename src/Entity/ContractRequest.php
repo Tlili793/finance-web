@@ -19,6 +19,7 @@ class ContractRequest
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    /** @phpstan-ignore-next-line */
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'contractRequests')]
@@ -36,8 +37,8 @@ class ContractRequest
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
     private ?string $calculatedPremium = null;
 
-    #[ORM\Column(length: 20, options: ['default' => 'PENDING'])]
-    private ?string $status = 'PENDING';
+    #[ORM\Column(length: 20)]
+    private string $status = 'PENDING';
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: false)]
     private ?\DateTimeInterface $createdAt = null;

@@ -7,6 +7,11 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<Budget>
+ *
+ * @method Budget|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Budget|null findOneBy(array<string, mixed> $criteria, array<string, string> $orderBy = null)
+ * @method Budget[]    findAll()
+ * @method Budget[]    findBy(array<string, mixed> $criteria, array<string, string> $orderBy = null, $limit = null, $offset = null)
  */
 class BudgetRepository extends ServiceEntityRepository
 {

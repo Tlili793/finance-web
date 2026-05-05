@@ -59,6 +59,8 @@ class PersonalFinanceController extends AbstractController
     /**
      * Calculate Financial Health Score (0-100)
      * Based on budget usage percentages
+     * 
+     * @param array<Budget> $budgets
      */
     private function calculateHealthScore(array $budgets): int
     {
@@ -100,6 +102,8 @@ class PersonalFinanceController extends AbstractController
     
     /**
      * Get health status based on score
+     * 
+     * @return array<string, string>
      */
     private function getHealthStatus(int $score): array
     {
@@ -116,6 +120,9 @@ class PersonalFinanceController extends AbstractController
     
     /**
      * Detect spending patterns from expenses
+     * 
+     * @param array<Budget> $budgets
+     * @return array<string, mixed>
      */
     private function detectSpendingPatterns(array $budgets): array
     {
@@ -177,6 +184,9 @@ class PersonalFinanceController extends AbstractController
     
     /**
      * Generate smart notifications based on budget status
+     * 
+     * @param array<Budget> $budgets
+     * @return array<int, array<string, mixed>>
      */
     private function generateSmartNotifications(array $budgets): array
     {
@@ -298,6 +308,9 @@ class PersonalFinanceController extends AbstractController
     
     /**
      * Calculate overall budget summary
+     * 
+     * @param array<Budget> $budgets
+     * @return array<string, float|int>
      */
     private function calculateBudgetSummary(array $budgets): array
     {
@@ -349,6 +362,9 @@ class PersonalFinanceController extends AbstractController
     
     /**
      * Prepare budgets with their status and percentages
+     * 
+     * @param array<Budget> $budgets
+     * @return array<int, array<string, mixed>>
      */
     private function prepareBudgetsWithStatus(array $budgets): array
     {
@@ -389,6 +405,9 @@ class PersonalFinanceController extends AbstractController
     
     /**
      * Calculate predictive spending forecast for the current month
+     * 
+     * @param array<Budget> $budgets
+     * @return array<string, float|int>
      */
     private function calculateForecast(array $budgets): array
     {

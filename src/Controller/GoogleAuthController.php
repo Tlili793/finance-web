@@ -12,12 +12,15 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
+use Symfony\Bundle\SecurityBundle\Security;
+
 class GoogleAuthController extends AbstractController
 {
     public function __construct(
         private readonly HttpClientInterface    $httpClient,
         private readonly EntityManagerInterface $em,
         private readonly UserRepository         $userRepository,
+        private readonly Security               $security,
     ) {}
 
     // ─── Step 1: Redirect to Google ───────────────────────────────────────────
@@ -132,10 +135,7 @@ class GoogleAuthController extends AbstractController
         $this->em->flush();
 
         // ── Manually log the user into Symfony's security system ─────────────
-        // This is the standard Symfony 6.x way to programmatically authenticate a user.
-        $token = new UsernamePasswordToken($user, 'main', $user->getRoles());
-        $request->getSession()->set('_security_main', serialize($token));
-        $request->getSession()->save();
+        $this->security->login($user, null, 'main');
 
         $this->addFlash('success', 'Welcome, ' . $user->getName() . '! You are signed in with Google.');
         return $this->redirectToRoute('app_home');

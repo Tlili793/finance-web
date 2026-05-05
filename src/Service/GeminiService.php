@@ -14,6 +14,9 @@ class GeminiService
     ) {
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     public function generateSideHustles(string $userDescription): array
     {
         // Check if API key is set
@@ -64,7 +67,45 @@ class GeminiService
             }
         }, 3600);
     }
+
+    public function generateText(string $prompt): string
+    {
+        if (empty($this->apiKey) || $this->apiKey === 'your_api_key_here') {
+            return "Consider increasing payments to reduce interest and clear debt faster.";
+        }
+        
+        $cacheKey = 'gemini_text_' . md5($prompt);
+        
+        return $this->cache->get($cacheKey, function () use ($prompt) {
+            try {
+                $response = $this->httpClient->request('POST', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent', [
+                    'query' => ['key' => $this->apiKey],
+                    'json' => [
+                        'contents' => [
+                            [
+                                'parts' => [
+                                    ['text' => $prompt]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]);
+                
+                if ($response->getStatusCode() !== 200) {
+                    return "Consider increasing payments to reduce interest and clear debt faster.";
+                }
+                
+                $data = $response->toArray();
+                return $data['candidates'][0]['content']['parts'][0]['text'] ?? "Consider increasing payments to reduce interest and clear debt faster.";
+            } catch (\Exception $e) {
+                return "Consider increasing payments to reduce interest and clear debt faster.";
+            }
+        }, 3600);
+    }
     
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     private function getFakeSuggestions(string $userDescription): array
     {
         // Detect keywords from user description

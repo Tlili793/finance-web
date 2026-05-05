@@ -8,9 +8,6 @@ use App\Repository\LoanRepository;
 use App\Repository\RepaymentRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Dompdf\Dompdf;
-use Endroid\QrCode\QrCode;
-use Endroid\QrCode\Writer\SvgWriter;
-use OpenAI;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,29 +22,14 @@ class LoanController extends AbstractController
      * Helper method to check if loan belongs to current user
      * This handles different possible method names
      */
+    /**
+     * Helper method to check if loan belongs to current user
+     */
     private function isLoanOwner(Loan $loan): bool
     {
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
-        
-        // Try different possible getter methods
-        if (method_exists($loan, 'getBorrower')) {
-            return $loan->getBorrower() === $user;
-        }
-        if (method_exists($loan, 'getUser')) {
-            return $loan->getUser() === $user;
-        }
-        if (method_exists($loan, 'getOwner')) {
-            return $loan->getOwner() === $user;
-        }
-        
-        // If no method exists, try property access via reflection
-        try {
-            $reflection = new \ReflectionProperty($loan, 'borrower');
-            $reflection->setAccessible(true);
-            return $reflection->getValue($loan) === $user;
-        } catch (\Exception $e) {
-            return false;
-        }
+        return $loan->getUser() === $user;
     }
 
     /**
@@ -86,7 +68,7 @@ class LoanController extends AbstractController
             $totalRepaid += $loanPaid;
 
             $remainingAmount = $loan->getAmount() - $loanPaid;
-            $percentValue = $loan->getAmount() > 0 ? ($loanPaid / $loan->getAmount()) * 100 : 0;
+            $percentValue = (float)$loan->getAmount() > 0 ? ($loanPaid / (float)$loan->getAmount()) * 100 : 0;
 
             $loanProgress[] = [
                 'loan' => $loan,
@@ -268,15 +250,9 @@ class LoanController extends AbstractController
         if ($request->isMethod('POST')) {
             $loan = new Loan();
             
-            // Try different setter methods
-            if (method_exists($loan, 'setBorrower')) {
-                $loan->setBorrower($this->getUser());
-            } elseif (method_exists($loan, 'setUser')) {
-                $loan->setUser($this->getUser());
-            } else {
-                // Try direct property access
-                $loan->borrower = $this->getUser();
-            }
+            /** @var \App\Entity\User $user */
+            $user = $this->getUser();
+            $loan->setUser($user);
             
             $loan->setAmount($request->request->get('amount'));
             $loan->setInterestRate($request->request->get('interest_rate'));
@@ -400,10 +376,10 @@ class LoanController extends AbstractController
     }
 
     /**
-     * 7. AI RISK ANALYSIS (OpenAI Integration)
+     * 7. AI RISK ANALYSIS (Gemini Integration)
      */
     #[Route('/{id}/analyse', name: 'analyse', methods: ['GET'])]
-    public function analyseRisk(Loan $loan, RepaymentRepository $repaymentRepo): Response
+    public function analyseRisk(Loan $loan, RepaymentRepository $repaymentRepo, \App\Service\GeminiService $gemini): Response
     {
         if (!$this->isLoanOwner($loan)) {
             throw $this->createAccessDeniedException();
@@ -412,21 +388,17 @@ class LoanController extends AbstractController
         $repayments = $repaymentRepo->findBy(['loan' => $loan]);
         $totalPaid = array_sum(array_map(fn($r) => (float)$r->getAmount(), $repayments));
         $remaining = max(0, (float)$loan->getAmount() - $totalPaid);
-        $pct = $loan->getAmount() > 0 ? round(($totalPaid / $loan->getAmount()) * 100, 1) : 0;
+        $pct = (float)$loan->getAmount() > 0 ? round(($totalPaid / (float)$loan->getAmount()) * 100, 1) : 0;
         
-        $analysis = ['level' => 'N/A', 'advice' => 'AI Analysis is currently unavailable.'];
+        $analysis = ['level' => 'Active', 'advice' => 'AI Analysis is currently processing your loan data...'];
+        
         try {
-            $apiKey = $this->getParameter('kernel.openai_key');
-            $client = OpenAI::client($apiKey);
-            $result = $client->chat()->create([
-                'model' => 'gpt-3.5-turbo',
-                'messages' => [
-                    ['role' => 'system', 'content' => 'You are a financial risk advisor.'],
-                    ['role' => 'user', 'content' => "Analyse this loan: Total {$loan->getAmount()}, Paid {$totalPaid}, Remaining {$remaining}. Provide risk level and one tip."]
-                ],
-            ]);
-            $analysis = ['level' => 'Active', 'advice' => $result->choices[0]->message->content];
-        } catch (\Exception $e) { }
+            $prompt = "Analyse this loan for risk: Total {$loan->getAmount()} TND, Paid {$totalPaid} TND, Remaining {$remaining} TND. Progress: {$pct}%. Provide a short risk assessment and one actionable tip.";
+            $advice = $gemini->generateText($prompt);
+            $analysis['advice'] = $advice ?: $analysis['advice'];
+        } catch (\Exception $e) {
+            $analysis['advice'] = 'We could not reach our AI advisor at this time. Please try again later.';
+        }
 
         return $this->render('loan/analyse.html.twig', [
             'loan' => $loan, 
@@ -450,15 +422,11 @@ class LoanController extends AbstractController
         $repayments = $repaymentRepo->findBy(['loan' => $loan]);
         $totalPaid = array_sum(array_map(fn($r) => (float)$r->getAmount(), $repayments));
         
-        $qrCode = new QrCode('LoanID:' . $loan->getId() . '|Remaining:' . ($loan->getAmount() - $totalPaid));
-        $writer = new SvgWriter();
-        $qrBase64 = base64_encode($writer->write($qrCode)->getString());
-        
         $html = $this->renderView('loan/invoice.html.twig', [
             'loan' => $loan, 
             'repayments' => $repayments, 
             'totalPaid' => $totalPaid, 
-            'qrCode' => $qrBase64
+            'qrCode' => null // QR code feature disabled as dependency is missing
         ]);
         
         $dompdf = new Dompdf();

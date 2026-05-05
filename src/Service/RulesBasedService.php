@@ -4,6 +4,10 @@ namespace App\Service;
 
 class RulesBasedService
 {
+    /**
+     * @param array<string, mixed> $formData
+     * @return array<int, array<string, mixed>>
+     */
     public function generateSuggestions(array $formData): array
     {
         $workPreference = $formData['work_preference'] ?? 'hybrid';
@@ -177,7 +181,8 @@ class RulesBasedService
         ];
 
         // Scoring Engine
-        foreach ($hustles as &$hustle) {
+        $scoredHustles = [];
+        foreach ($hustles as $hustle) {
             $score = 0;
             $w = $hustle['weights'];
 
@@ -205,14 +210,15 @@ class RulesBasedService
             }
 
             $hustle['score'] = $score;
+            $scoredHustles[] = $hustle;
         }
 
         // Sort by score descending
-        usort($hustles, function($a, $b) {
+        usort($scoredHustles, function(array $a, array $b) {
             return $b['score'] <=> $a['score'];
         });
 
         // Return top 3
-        return array_slice($hustles, 0, 3);
+        return array_slice($scoredHustles, 0, 3);
     }
 }

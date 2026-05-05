@@ -21,8 +21,10 @@ class InsuranceAssistantController extends AbstractController
         InsurancePackageRepository $packageRepo,
         ContractRequestRepository $requestRepo,
     ): Response {
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        $chatKey = 'insurance_chat_history_' . $user->getId();
         $session = $request->getSession();
-        $chatKey = 'insurance_chat_history_' . $this->getUser()->getId();
         $history = $session->get($chatKey, []);
 
         if ($request->isMethod('POST')) {
@@ -30,6 +32,7 @@ class InsuranceAssistantController extends AbstractController
 
             if ($message !== '') {
                 // ── Build context directly from repositories ──────────────
+                /** @var \App\Entity\User $user */
                 $user = $this->getUser();
 
                 $contextData = [
@@ -105,7 +108,9 @@ class InsuranceAssistantController extends AbstractController
     #[Route('/reset', name: 'reset', methods: ['POST'])]
     public function reset(Request $request, HttpClientInterface $client): Response
     {
-        $userId  = $this->getUser()->getId();
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        $userId  = $user->getId();
         $chatKey = 'insurance_chat_history_' . $userId;
 
         try {

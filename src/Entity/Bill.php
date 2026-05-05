@@ -20,28 +20,29 @@ class Bill
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    /** @phpstan-ignore-next-line */
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
 #[Assert\NotBlank(message: 'Bill name is required')]
 #[Assert\Length(min: 2, max: 100, minMessage: 'Name must be at least 2 characters')]
-private ?string $name = null;
+private string $name = '';
 
    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
 #[Assert\NotBlank(message: 'Amount is required')]
 #[Assert\Positive(message: 'Amount must be greater than 0')]
 #[Assert\LessThan(value: 1000000, message: 'Amount seems too high')]
-private ?string $amount = null;
+private string $amount = '0.00';
 
     #[ORM\Column(type: Types::INTEGER)]
     #[Assert\NotBlank]
     #[Assert\Range(min: 1, max: 31)]
-    private ?int $dueDay = null;
+    private int $dueDay = 1;
 
     #[ORM\Column(length: 20)]
 #[Assert\NotBlank(message: 'Frequency is required')]
 #[Assert\Choice(choices: ['MONTHLY', 'WEEKLY', 'YEARLY'], message: 'Invalid frequency')]
-private ?string $frequency = null;
+private string $frequency = 'MONTHLY';
 
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $category = null;
@@ -54,10 +55,10 @@ private ?string $frequency = null;
     private ?Budget $budget = null;
 
     #[ORM\Column(length: 20, options: ['default' => 'UNPAID'])]
-    private ?string $status = 'UNPAID';
+    private string $status = 'UNPAID';
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: false)]
-    private ?\DateTimeInterface $createdAt = null;
+    private \DateTimeInterface $createdAt;
         // Relationship with Expense
     #[ORM\OneToOne(mappedBy: 'bill', cascade: ['persist', 'remove'])]
     private ?Expense $expense = null;
