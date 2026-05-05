@@ -58,3 +58,10 @@ services:
     App\Service\RulesBasedService:
         autowire: true
         autoconfigure: true
+
+    # Testing Services (Public for KernelTestCase access)
+    App\Service\Testing\:
+        resource: '../src/Service/Testing/'
+        public: true
+        exclude: '../src/Service/Testing/AbstractEntityTestService.php'
+
