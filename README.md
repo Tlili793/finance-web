@@ -131,5 +131,13 @@ For more details, see [testing_documentation.md](./testing_documentation.md).
 
 ---
 
+## 👥 Team & Contributors
+Developed by:
+- **Mohamed Wassim Tlili**
+- **Fathi Mejri**
+- **Hanin Limam**
+- **Salma Boubakri**
+- **Yasmine Ben Abedelkader**
+
 ## 📄 License
-Proprietary. Developed by **Mohamed Wassim Tlili**.
+Proprietary.
