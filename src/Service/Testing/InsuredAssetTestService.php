@@ -15,6 +15,7 @@ class InsuredAssetTestService extends AbstractEntityTestService
         string $brand = 'Toyota'
     ): InsuredAsset {
         $asset = new InsuredAsset();
+        $asset->setCreatedBy($user);
         $asset->setUser($user);
         $asset->setReference($reference);
         $asset->setType($type);

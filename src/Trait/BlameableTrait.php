@@ -39,7 +39,7 @@ trait BlameableTrait
         return $this->createdBy;
     }
 
-    protected function setCreatedBy(?User $createdBy): static
+    public function setCreatedBy(?User $createdBy): static
     {
         $this->createdBy = $createdBy;
         return $this;
@@ -50,7 +50,7 @@ trait BlameableTrait
         return $this->updatedBy;
     }
 
-    protected function setUpdatedBy(?User $updatedBy): static
+    public function setUpdatedBy(?User $updatedBy): static
     {
         $this->updatedBy = $updatedBy;
         return $this;

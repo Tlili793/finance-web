@@ -7,6 +7,7 @@ use App\Entity\InsurancePackage;
 class InsurancePackageTestService extends AbstractEntityTestService
 {
     public function create(
+        User $creator,
         string $name = 'Basic Car Insurance',
         string $assetType = 'Vehicle',
         string $basePrice = '500.00',
@@ -14,6 +15,7 @@ class InsurancePackageTestService extends AbstractEntityTestService
         int $durationMonths = 12
     ): InsurancePackage {
         $package = new InsurancePackage();
+        $package->setCreatedBy($creator);
         $package->setName($name);
         $package->setAssetType($assetType);
         $package->setBasePrice($basePrice);

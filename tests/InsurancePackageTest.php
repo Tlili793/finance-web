@@ -14,7 +14,11 @@ class InsurancePackageTest extends KernelTestCase
         /** @var \App\Service\Testing\InsurancePackageTestService $packageFactory */
         $packageFactory = $container->get(\App\Service\Testing\InsurancePackageTestService::class);
         
+        $userFactory = $container->get(\App\Service\Testing\UserTestService::class);
+        $creator = $userFactory->create(email: 'creator.' . uniqid() . '@test.com');
+
         $package = $packageFactory->create(
+            creator: $creator,
             name: 'Integration Test Package',
             assetType: 'Vehicle',
             basePrice: '150.00'
